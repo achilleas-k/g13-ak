@@ -1,4 +1,4 @@
-package vkeyboard
+package keyboard
 
 import (
 	"fmt"
@@ -6,23 +6,30 @@ import (
 	"github.com/bendahl/uinput"
 )
 
-type VKeyboard struct {
+type Keyboard interface {
+	Close() error
+	KeyPress(k int) error
+	KeyDown(k int) error
+	KeyUp(k int) error
+}
+
+type UinputKeyboard struct {
 	kb uinput.Keyboard
 }
 
-// New returns a [VKeyboard] instance with a [uinput.Keyboard] initialised with
+// New returns a [Keyboard] instance with a [uinput.Keyboard] initialised with
 // the provided name.
-func New(name string) (*VKeyboard, error) {
+func New(name string) (Keyboard, error) {
 	kb, err := uinput.CreateKeyboard("/dev/uinput", []byte(name))
 	if err != nil {
 		return nil, err
 	}
-	return &VKeyboard{
+	return &UinputKeyboard{
 		kb: kb,
 	}, nil
 }
 
-func (vkb *VKeyboard) Close() error {
+func (vkb *UinputKeyboard) Close() error {
 	if !vkb.hasKeyboard() {
 		// just do nothing
 		return nil
@@ -30,27 +37,27 @@ func (vkb *VKeyboard) Close() error {
 	return vkb.kb.Close()
 }
 
-func (vkb *VKeyboard) KeyPress(k int) error {
+func (vkb *UinputKeyboard) KeyPress(k int) error {
 	if !vkb.hasKeyboard() {
 		return fmt.Errorf("key press before initialising keyboard")
 	}
 	return vkb.kb.KeyPress(k)
 }
 
-func (vkb *VKeyboard) KeyDown(k int) error {
+func (vkb *UinputKeyboard) KeyDown(k int) error {
 	if !vkb.hasKeyboard() {
 		return fmt.Errorf("key down before initialising keyboard")
 	}
 	return vkb.kb.KeyDown(k)
 }
 
-func (vkb *VKeyboard) KeyUp(k int) error {
+func (vkb *UinputKeyboard) KeyUp(k int) error {
 	if !vkb.hasKeyboard() {
 		return fmt.Errorf("key up before initialising keyboard")
 	}
 	return vkb.kb.KeyUp(k)
 }
 
-func (vkb *VKeyboard) hasKeyboard() bool {
+func (vkb *UinputKeyboard) hasKeyboard() bool {
 	return vkb.kb != nil
 }

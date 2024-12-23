@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/achilleas-k/g13-ak/internal/device"
-	"github.com/achilleas-k/g13-ak/internal/vkeyboard"
+	"github.com/achilleas-k/g13-ak/internal/keyboard"
 	"github.com/bendahl/uinput"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	}
 	defer dev.Close()
 
-	vkb, err := vkeyboard.New("g13-vkb")
+	vkb, err := keyboard.New("g13-vkb")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error initialising virtual keyboard: %s\n", err)
 	}
