@@ -1,0 +1,60 @@
+---
+name: Tests
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - main
+  # for merge queue
+  merge_group:
+
+jobs:
+  unit-tests-fedora:
+    name: "Unit tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run unit tests
+        run: go test -v -race ./...
+
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.23
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Apt update
+        run: sudo apt update
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.61.0
+          args: --verbose --timeout 5m0s
+
+  shellcheck:
+    name: "Shellcheck"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
