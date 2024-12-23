@@ -59,7 +59,6 @@ func main() {
 			fmt.Fprintf(os.Stderr, "e: %s\n", err)
 		}
 		input := device.MaskDataForInput(k)
-		pressedKeys := []int{}
 		for mappedKey, mapping := range mappings {
 			switch uint64(mappedKey) & input {
 			case 0:
@@ -72,7 +71,6 @@ func main() {
 				if err := vkb.KeyDown(mapping); err != nil {
 					fmt.Fprintf(os.Stderr, "keyboard error pressing %d: %s\n", mapping, err)
 				}
-				pressedKeys = append(pressedKeys, mapping)
 			}
 		}
 	}
