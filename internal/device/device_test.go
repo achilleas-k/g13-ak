@@ -460,7 +460,7 @@ var (
 		},
 		{
 			data:     0x8000800000707801,
-			keyNames: []string{""},
+			keyNames: []string{},
 		},
 		{
 			data:     0x800080707801,
@@ -492,7 +492,7 @@ var (
 		},
 		{
 			data:     0x8000800000707801,
-			keyNames: []string{""},
+			keyNames: []string{},
 		},
 		{
 			data:     0x200800000707801,
@@ -564,40 +564,36 @@ var (
 		},
 		{
 			data:     0x800000707801,
-			keyNames: []string{""},
+			keyNames: []string{},
 		},
+	}
+
+	testSets = map[string][]testData{
+		"small": smallDataSet,
+		"all":   allButtons,
+		"multi": multiButtonEvents,
 	}
 )
 
 func TestButtonIdentification(t *testing.T) {
 	// This test ensures that any internal button representation change doesn't
 	// affect the identification of pressed buttons.
-	assert := assert.New(t)
-	for idx, testItem := range smallDataSet {
-		data := testItem.data
-		expectedKeyNames := testItem.keyNames
+	for name, dataSet := range testSets {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+			for idx, testItem := range dataSet {
+				data := testItem.data
+				expectedKeyNames := testItem.keyNames
 
-		var decodedKeyNames []string
-		for _, key := range device.AllKeys() {
-			if key.Uint64()&data != 0 {
-				// key is pressed
-				decodedKeyNames = append(decodedKeyNames, key.String())
+				var decodedKeyNames []string
+				for _, key := range device.AllKeys() {
+					if key.Uint64()&data != 0 {
+						// key is pressed
+						decodedKeyNames = append(decodedKeyNames, key.String())
+					}
+				}
+				assert.ElementsMatch(expectedKeyNames, decodedKeyNames, "[%d]: %#v", idx, data)
 			}
-		}
-		assert.ElementsMatch(expectedKeyNames, decodedKeyNames, "smallDataSet[%d]: %#v", idx, data)
-	}
-
-	for idx, testItem := range allButtons {
-		data := testItem.data
-		expectedKeyNames := testItem.keyNames
-
-		var decodedKeyNames []string
-		for _, key := range device.AllKeys() {
-			if key.Uint64()&data != 0 {
-				// key is pressed
-				decodedKeyNames = append(decodedKeyNames, key.String())
-			}
-		}
-		assert.ElementsMatch(expectedKeyNames, decodedKeyNames, "allButtons[%d]: %#v", idx, data)
+		})
 	}
 }
