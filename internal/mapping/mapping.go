@@ -38,3 +38,14 @@ func (m *Mapping) UnsetKey(gkey device.KeyBit) {
 func (m *Mapping) Reset() {
 	m.keyMap = make(map[device.KeyBit]int, len(device.AllKeys()))
 }
+
+// GetKeyStates returns the state of each mapped keyboard key for the given
+// input (from [device.ReadInput]). The result maps a keyboard keycode to a
+// state, true for down (pressed) and false for up (released).
+func (m *Mapping) GetKeyStates(input uint64) map[int]bool {
+	kbkeys := make(map[int]bool, len(m.keyMap))
+	for gkey, kbkey := range m.keyMap {
+		kbkeys[kbkey] = (gkey.Uint64() & input) != 0
+	}
+	return kbkeys
+}
