@@ -93,36 +93,10 @@ func MaskDataForInput(data uint64) uint64 {
 	return (data & buttonStateMask) >> 24
 }
 
-func btoiBE(b []byte) (i uint64) {
-	for _, bi := range b {
-		i <<= 8
-		i += uint64(bi)
-	}
-	return
-}
-
 func btoiLE(b []byte) (i uint64) {
 	for idx := len(b) - 1; idx >= 0; idx-- {
 		i <<= 8
 		i += uint64(b[idx])
-	}
-	return
-}
-
-func itobBE(i uint64) (b []byte) {
-	b = make([]byte, 8)
-	for idx := 7; idx >= 0; idx-- {
-		b[idx] = byte(i & 0xFF)
-		i >>= 8
-	}
-	return
-}
-
-func itobLE(i uint64) (b []byte) {
-	b = make([]byte, 8)
-	for idx := 0; idx < 8; idx++ {
-		b[idx] = byte(i & 0xFF)
-		i >>= 8
 	}
 	return
 }
