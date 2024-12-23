@@ -68,7 +68,7 @@ var (
 
 // MaskDataForInput returns the given data masked to only contain the bits
 // relevant for reading button states. The input is assumed to be 8 bytes and
-// LE ordered, as it is read from [Device.ReadInput].
+// LE ordered, as it is read from [G13Device.ReadInput].
 func MaskDataForInput(data uint64) uint64 {
 	return (data & buttonStateMask) >> 24
 }

@@ -1,4 +1,4 @@
-// Package device provides the [Device] struct for interacting with the G13
+// Package device provides the [Device] interface for interacting with the G13
 // gameboard.
 //
 // Decoding logic adapted from https://github.com/khampf/g13 which was
@@ -12,7 +12,13 @@ import (
 	"github.com/google/gousb"
 )
 
-type Device struct {
+type Device interface {
+	Close()
+	ReadBytes() []byte
+	ReadInput() (uint64, error)
+}
+
+type G13Device struct {
 	ctx  *gousb.Context
 	dev  *gousb.Device
 	cfg  *gousb.Config
@@ -20,13 +26,13 @@ type Device struct {
 	IEP  *gousb.InEndpoint
 }
 
-// New returns an initialised [Device] for a connected G13 gameboard. It
+// New returns an initialised [G13Device] for a connected G13 gameboard. It
 // contains an initialised [gousb.InEndpoint] which is used by
-// [Device.ReadBytes] and [Device.ReadInput] for reading button presses.
-func New() (*Device, error) {
+// [G13Device.ReadBytes] and [G13Device.ReadInput] for reading button presses.
+func New() (Device, error) {
 	ctx := gousb.NewContext()
 
-	d := Device{}
+	d := G13Device{}
 	dev, err := ctx.OpenDeviceWithVIDPID(0x046d, 0xc21c)
 	if err != nil {
 		d.Close()
@@ -71,7 +77,7 @@ func New() (*Device, error) {
 	return &d, nil
 }
 
-func (d *Device) Close() {
+func (d *G13Device) Close() {
 	if d.ctx != nil {
 		defer d.ctx.Close()
 	}
@@ -86,7 +92,7 @@ func (d *Device) Close() {
 	}
 }
 
-func (d *Device) ReadInput() (uint64, error) {
+func (d *G13Device) ReadInput() (uint64, error) {
 	buf := make([]byte, 1*d.IEP.Desc.MaxPacketSize)
 	if _, err := d.IEP.Read(buf); err != nil {
 		return 0, err
@@ -94,7 +100,7 @@ func (d *Device) ReadInput() (uint64, error) {
 	return binary.LittleEndian.Uint64(buf), nil
 }
 
-func (d *Device) ReadBytes() []byte {
+func (d *G13Device) ReadBytes() []byte {
 	buf := make([]byte, 1*d.IEP.Desc.MaxPacketSize)
 	if _, err := d.IEP.Read(buf); err != nil {
 		panic(err)
