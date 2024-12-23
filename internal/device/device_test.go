@@ -404,6 +404,169 @@ var (
 			keyNames: []string{},
 		},
 	}
+
+	multiButtonEvents = []testData{
+		{
+			data:     0x804000707801,
+			keyNames: []string{"G15"},
+		},
+		{
+			data:     0x8000804800707801,
+			keyNames: []string{"G12", "G15"},
+		},
+		{
+			data:     0x804808707801,
+			keyNames: []string{"G4", "G12", "G15"},
+		},
+		{
+			data:     0xa04808707801,
+			keyNames: []string{"G4", "G12", "G15", "G22"},
+		},
+		{
+			data:     0xa04848707801,
+			keyNames: []string{"G4", "G7", "G12", "G15", "G22"},
+		},
+		{
+			data:     0x8000a06848707801,
+			keyNames: []string{"G4", "G7", "G12", "G14", "G15", "G22"},
+		},
+		{
+			data:     0xa0684c707801,
+			keyNames: []string{"G3", "G4", "G7", "G12", "G14", "G15", "G22"},
+		},
+		{
+			data:     0x8000a06844707801,
+			keyNames: []string{"G3", "G7", "G12", "G14", "G15", "G22"},
+		},
+		{
+			data:     0xa06840707801,
+			keyNames: []string{"G7", "G12", "G14", "G15", "G22"},
+		},
+		{
+			data:     0x8000806840707801,
+			keyNames: []string{"G7", "G12", "G14", "G15"},
+		},
+		{
+			data:     0x806040707801,
+			keyNames: []string{"G7", "G14", "G15"},
+		},
+		{
+			data:     0x804040707801,
+			keyNames: []string{"G7", "G15"},
+		},
+		{
+			data:     0x8000800040707801,
+			keyNames: []string{"G7"},
+		},
+		{
+			data:     0x8000800000707801,
+			keyNames: []string{""},
+		},
+		{
+			data:     0x800080707801,
+			keyNames: []string{"G8"},
+		},
+		{
+			data:     0x800180707801,
+			keyNames: []string{"G8", "G9"},
+		},
+		{
+			data:     0x800380707801,
+			keyNames: []string{"G8", "G9", "G10"},
+		},
+		{
+			data:     0x800280707801,
+			keyNames: []string{"G8", "G10"},
+		},
+		{
+			data:     0x800680707801,
+			keyNames: []string{"G8", "G10", "G11"},
+		},
+		{
+			data:     0x8000800600707801,
+			keyNames: []string{"G10", "G11"},
+		},
+		{
+			data:     0x800400707801,
+			keyNames: []string{"G11"},
+		},
+		{
+			data:     0x8000800000707801,
+			keyNames: []string{""},
+		},
+		{
+			data:     0x200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800008707801,
+			keyNames: []string{"G4", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800008707801,
+			keyNames: []string{"G4", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800008707801,
+			keyNames: []string{"G4", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800008707801,
+			keyNames: []string{"G4", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800008707801,
+			keyNames: []string{"G4", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x8200800008707801,
+			keyNames: []string{"G4", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800004707801,
+			keyNames: []string{"G3", "LEFT"},
+		},
+		{
+			data:     0x200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x200800004707801,
+			keyNames: []string{"G3", "LEFT"},
+		},
+		{
+			data:     0x8200800000707801,
+			keyNames: []string{"LEFT"},
+		},
+		{
+			data:     0x800000707801,
+			keyNames: []string{""},
+		},
+	}
 )
 
 func TestButtonIdentification(t *testing.T) {
