@@ -36,7 +36,7 @@ func New() (Device, error) {
 	dev, err := ctx.OpenDeviceWithVIDPID(0x046d, 0xc21c)
 	if err != nil {
 		d.Close()
-		return nil, fmt.Errorf("failed to open device: %s", err)
+		return nil, fmt.Errorf("failed to open device: %w", err)
 	}
 	d.dev = dev
 
@@ -48,26 +48,26 @@ func New() (Device, error) {
 	cfg, err := dev.Config(1)
 	if err != nil {
 		d.Close()
-		return nil, fmt.Errorf("failed to initialise config: %s", err)
+		return nil, fmt.Errorf("failed to initialise config: %w", err)
 	}
 	d.cfg = cfg
 
 	if err := dev.SetAutoDetach(true); err != nil {
 		d.Close()
-		return nil, fmt.Errorf("failed to enable automatic kernel driver detachment: %s", err)
+		return nil, fmt.Errorf("failed to enable automatic kernel driver detachment: %w", err)
 	}
 
 	intf, err := cfg.Interface(0, 0)
 	if err != nil {
 		d.Close()
-		return nil, fmt.Errorf("failed to select interface 0: %s", err)
+		return nil, fmt.Errorf("failed to select interface 0: %w", err)
 	}
 	d.intf = intf
 
 	ep, err := intf.InEndpoint(1)
 	if err != nil {
 		d.Close()
-		return nil, fmt.Errorf("failed to initialise input endpoint: %s", err)
+		return nil, fmt.Errorf("failed to initialise input endpoint: %w", err)
 	}
 
 	// Probably unnecessary, but good to be sure
