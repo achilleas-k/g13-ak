@@ -53,7 +53,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error initialising virtual keyboard: %s\n", err)
 	}
 
-	keyMap := mapping.New()
+	keyMap := mapping.NewEmpty()
 	keyMap.SetKeys(myDefaultMapping)
 	fmt.Println("Ready")
 	for {

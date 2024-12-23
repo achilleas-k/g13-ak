@@ -2,18 +2,39 @@
 // keys.
 package mapping
 
-import "github.com/achilleas-k/g13-ak/internal/device"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+
+	"github.com/achilleas-k/g13-ak/internal/device"
+	"github.com/achilleas-k/g13-ak/internal/keyboard"
+)
+
+type keyMap map[device.KeyBit]int
 
 // Mapping maps G13 keys to uinput key codes.
 type Mapping struct {
-	keyMap map[device.KeyBit]int
+	keyMap keyMap
 }
 
-// New empty [Mapping].
-func New() *Mapping {
+// NewEmpty returns an empty [Mapping].
+func NewEmpty() *Mapping {
 	return &Mapping{
-		keyMap: make(map[device.KeyBit]int, len(device.AllKeys())),
+		keyMap: make(keyMap, len(device.AllKeys())),
 	}
+}
+
+// NewFromFile returns a [Mapping] initialised from the file at the given path.
+func NewFromFile(path string) (*Mapping, error) {
+	km, err := loadConfig(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Mapping{
+		keyMap: km,
+	}, nil
 }
 
 // SetKey maps a G13 key to the given keyboard key.
@@ -23,8 +44,8 @@ func (m *Mapping) SetKey(gkey device.KeyBit, kbKey int) {
 
 // SetKeys maps one or more G13 keys to the given keyboard key. It does not
 // override any mappings not present in keyMap.
-func (m *Mapping) SetKeys(keyMap map[device.KeyBit]int) {
-	for gkey, kbkey := range keyMap {
+func (m *Mapping) SetKeys(km keyMap) {
+	for gkey, kbkey := range km {
 		m.keyMap[gkey] = kbkey
 	}
 }
@@ -36,7 +57,7 @@ func (m *Mapping) UnsetKey(gkey device.KeyBit) {
 
 // Reset unmaps all G13 keys.
 func (m *Mapping) Reset() {
-	m.keyMap = make(map[device.KeyBit]int, len(device.AllKeys()))
+	m.keyMap = make(keyMap, len(device.AllKeys()))
 }
 
 // GetKeyStates returns the state of each mapped keyboard key for the given
@@ -48,4 +69,30 @@ func (m *Mapping) GetKeyStates(input uint64) map[int]bool {
 		kbkeys[kbkey] = (gkey.Uint64() & input) != 0
 	}
 	return kbkeys
+}
+
+func loadConfig(path string) (keyMap, error) {
+	fileConfig := map[string]string{}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("error reading config file %q: %w", path, err)
+	}
+
+	if err := json.Unmarshal(data, &fileConfig); err != nil {
+		return nil, fmt.Errorf("error decoding config file %q: %w", path, err)
+	}
+
+	km := make(keyMap, len(fileConfig))
+	for gKeyStr, kbKeyStr := range fileConfig {
+		gKey := device.KeyCode(gKeyStr)
+		if gKey == 0 {
+			return nil, fmt.Errorf("unknown G13 key name: %s", gKeyStr)
+		}
+		kbKey := keyboard.KeyCode(kbKeyStr)
+		if kbKey == 0 {
+			return nil, fmt.Errorf("unknown keyboard key name: %s", kbKeyStr)
+		}
+		km[gKey] = kbKey
+	}
+	return km, nil
 }
