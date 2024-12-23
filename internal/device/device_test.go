@@ -358,7 +358,7 @@ func TestButtonIdentification(t *testing.T) {
 
 		var decodedKeyNames []string
 		for _, key := range device.AllKeys() {
-			if key.Uint64()&device.MaskDataForInput(device.BtoiLE(data)) != 0 {
+			if key.Uint64()&device.BtoiLE(data) != 0 {
 				// key is pressed
 				decodedKeyNames = append(decodedKeyNames, key.String())
 			}
@@ -372,7 +372,7 @@ func TestButtonIdentification(t *testing.T) {
 
 		var decodedKeyNames []string
 		for _, key := range device.AllKeys() {
-			if key.Uint64()&device.MaskDataForInput(device.BtoiLE(data)) != 0 {
+			if key.Uint64()&device.BtoiLE(data) != 0 {
 				// key is pressed
 				decodedKeyNames = append(decodedKeyNames, key.String())
 			}

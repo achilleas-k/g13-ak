@@ -54,11 +54,10 @@ func main() {
 
 	fmt.Println("Ready")
 	for {
-		k, err := dev.ReadInput()
+		input, err := dev.ReadInput()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "e: %s\n", err)
 		}
-		input := device.MaskDataForInput(k)
 		for mappedKey, mapping := range mappings {
 			switch uint64(mappedKey) & input {
 			case 0:

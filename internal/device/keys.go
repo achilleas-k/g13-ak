@@ -1,7 +1,7 @@
 package device
 
 // KeyBit defines, for each button on the G13, the corresponding single bit
-// mask that can be applied to the value returned by [MaskDataForInput].
+// mask that can be applied to the value returned by [device.ReadInput].
 // For example:
 //
 //	G1  = 0b1
@@ -11,7 +11,7 @@ package device
 type KeyBit uint64
 
 const (
-	G1 KeyBit = 1 << iota
+	G1 KeyBit = 1 << (iota + 24)
 	G2
 	G3
 	G4
@@ -69,9 +69,6 @@ var (
 		BD: "BD", L1: "L1", L2: "L2", L3: "L3", L4: "L4", M1: "M1", M2: "M2", M3: "M3",
 		MR: "MR", LEFT: "LEFT", DOWN: "DOWN", TOP: "TOP", UNDEF3: "UNDEF3", LIGHT: "LIGHT", LIGHT2: "LIGHT2", MISC_TOGGLE: "MISC_TOGGLE",
 	}
-
-	// Mask (LE order) for button states (1 down, 0 up).
-	buttonStateMask = uint64(0b00001111_11111111_00111111_11111111_11111111_00000000_00000000_00000000)
 )
 
 func (kb KeyBit) String() string {
@@ -84,13 +81,6 @@ func (kb KeyBit) Uint64() uint64 {
 
 func AllKeys() []KeyBit {
 	return allKeys
-}
-
-// MaskDataForInput returns the given data masked to only contain the bits
-// relevant for reading button states. The input is assumed to be 8 bytes and
-// LE ordered, as it is read from [Device.ReadInput].
-func MaskDataForInput(data uint64) uint64 {
-	return (data & buttonStateMask) >> 24
 }
 
 func btoiLE(b []byte) (i uint64) {
