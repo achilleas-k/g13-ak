@@ -69,7 +69,21 @@ var (
 		BD: "BD", L1: "L1", L2: "L2", L3: "L3", L4: "L4", M1: "M1", M2: "M2", M3: "M3",
 		MR: "MR", LEFT: "LEFT", DOWN: "DOWN", TOP: "TOP", UNDEF3: "UNDEF3", LIGHT: "LIGHT", LIGHT2: "LIGHT2", MISC_TOGGLE: "MISC_TOGGLE",
 	}
+
+	keysByName map[string]KeyBit
 )
+
+func init() {
+	// reverse the keyNames map to build the keysByName map
+	keysByName = make(map[string]KeyBit, len(keyNames))
+	for kb, name := range keyNames {
+		keysByName[name] = kb
+	}
+}
+
+func KeyCode(name string) KeyBit {
+	return keysByName[name]
+}
 
 func (kb KeyBit) String() string {
 	return keyNames[kb]
