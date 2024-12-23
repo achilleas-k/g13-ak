@@ -23,7 +23,7 @@ type G13Device struct {
 	dev  *gousb.Device
 	cfg  *gousb.Config
 	intf *gousb.Interface
-	IEP  *gousb.InEndpoint
+	iep  *gousb.InEndpoint
 }
 
 // New returns an initialised [G13Device] for a connected G13 gameboard. It
@@ -72,7 +72,7 @@ func New() (Device, error) {
 
 	// Probably unnecessary, but good to be sure
 	ep.Desc.TransferType = gousb.TransferTypeInterrupt
-	d.IEP = ep
+	d.iep = ep
 
 	return &d, nil
 }
@@ -97,8 +97,8 @@ func (d *G13Device) ReadInput() (uint64, error) {
 }
 
 func (d *G13Device) ReadBytes() []byte {
-	buf := make([]byte, 1*d.IEP.Desc.MaxPacketSize)
-	if _, err := d.IEP.Read(buf); err != nil {
+	buf := make([]byte, 1*d.iep.Desc.MaxPacketSize)
+	if _, err := d.iep.Read(buf); err != nil {
 		panic(err)
 	}
 	return buf
