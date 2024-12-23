@@ -12,6 +12,11 @@ import (
 	"github.com/google/gousb"
 )
 
+const (
+	g13VendorID  = 0x046d
+	g13ProductID = 0xc21c
+)
+
 type Device interface {
 	Close()
 	ReadBytes() ([]byte, error)
@@ -33,7 +38,7 @@ func New() (Device, error) {
 	ctx := gousb.NewContext()
 
 	d := G13Device{}
-	dev, err := ctx.OpenDeviceWithVIDPID(0x046d, 0xc21c)
+	dev, err := ctx.OpenDeviceWithVIDPID(g13VendorID, g13ProductID)
 	if err != nil {
 		d.Close()
 		return nil, fmt.Errorf("failed to open device: %w", err)
