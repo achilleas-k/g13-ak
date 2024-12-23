@@ -93,11 +93,7 @@ func (d *G13Device) Close() {
 }
 
 func (d *G13Device) ReadInput() (uint64, error) {
-	buf := make([]byte, 1*d.IEP.Desc.MaxPacketSize)
-	if _, err := d.IEP.Read(buf); err != nil {
-		return 0, err
-	}
-	return binary.LittleEndian.Uint64(buf), nil
+	return binary.LittleEndian.Uint64(d.ReadBytes()), nil
 }
 
 func (d *G13Device) ReadBytes() []byte {
