@@ -1,5 +1,58 @@
 package device
 
+// KeyBit defines, for each button on the G13, the corresponding single bit
+// mask that can be applied to the value returned by [MaskDataForInput].
+// For example:
+//
+//	G1  = 0b1
+//	G2  = 0b10
+//	G2  = 0b100
+//	G14 = 0b10000000000000
+type KeyBit uint64
+
+const (
+	G1 KeyBit = 1 << iota
+	G2
+	G3
+	G4
+	G5
+	G6
+	G7
+	G8
+	G9
+	G10
+	G11
+	G12
+	G13
+	G14
+	G15
+	G16
+	G17
+	G18
+	G19
+	G20
+	G21
+	G22
+	UNDEF1
+	LIGHT_STATE
+	BD
+	L1
+	L2
+	L3
+	L4
+	M1
+	M2
+	M3
+	MR
+	LEFT
+	DOWN
+	TOP
+	UNDEF3
+	LIGHT
+	LIGHT2
+	MISC_TOGGLE
+)
+
 var (
 	KeyNames = []string{
 		"G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8",
