@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
 
 	"github.com/achilleas-k/g13-ak/internal/config"
 	"github.com/achilleas-k/g13-ak/internal/device"
@@ -23,6 +24,21 @@ func mkcmd() *cobra.Command {
 	return &rootCmd
 }
 
+func setCleanupHandler(cleanup func()) {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt)
+	go func() {
+		for sig := range signalChan {
+			if sig == os.Interrupt {
+				fmt.Println("Stopping...")
+				cleanup()
+				break
+			}
+		}
+		os.Exit(0)
+	}()
+}
+
 func g13(cmd *cobra.Command, args []string) error {
 	// SilenceUsage if the command executed correctly.
 	// Argument parsing has already succeeded, so any error returned here
@@ -39,7 +55,7 @@ func g13(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("device initialisation failed: %w", err)
 	}
-	defer dev.Close()
+	setCleanupHandler(func() { dev.Close() })
 
 	vkb, err := keyboard.New("g13-vkb")
 	if err != nil {
