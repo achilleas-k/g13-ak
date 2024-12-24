@@ -30,6 +30,10 @@ func g13(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
 
 	configPath := args[0]
+	keyMap, err := mapping.NewFromFile(configPath)
+	if err != nil {
+		return err
+	}
 
 	dev, err := device.New()
 	if err != nil {
@@ -42,10 +46,6 @@ func g13(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("virtual keyboard initialisation failed: %w", err)
 	}
 
-	keyMap, err := mapping.NewFromFile(configPath)
-	if err != nil {
-		return err
-	}
 	fmt.Println("Ready")
 	for {
 		input, err := dev.ReadInput()
