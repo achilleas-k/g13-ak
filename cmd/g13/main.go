@@ -33,21 +33,18 @@ func g13(cmd *cobra.Command, args []string) error {
 
 	dev, err := device.New()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error initialising device: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("device initialisation failed: %w", err)
 	}
 	defer dev.Close()
 
 	vkb, err := keyboard.New("g13-vkb")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error initialising virtual keyboard: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("virtual keyboard initialisation failed: %w", err)
 	}
 
 	keyMap, err := mapping.NewFromFile(configPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
+		return err
 	}
 	fmt.Println("Ready")
 	for {
