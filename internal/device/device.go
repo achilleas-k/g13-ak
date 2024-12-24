@@ -108,7 +108,7 @@ func (d *G13Device) ReadInput() (uint64, error) {
 func (d *G13Device) ReadBytes() ([]byte, error) {
 	buf := make([]byte, 1*d.iep.Desc.MaxPacketSize)
 	if _, err := d.iep.Read(buf); err != nil {
-		return nil, fmt.Errorf("error reading from device: %w", err)
+		return nil, fmt.Errorf("failed reading from device: %w", err)
 	}
 	return buf, nil
 }

@@ -75,11 +75,11 @@ func loadConfig(path string) (keyMap, error) {
 	fileConfig := map[string]string{}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("error reading config file %q: %w", path, err)
+		return nil, fmt.Errorf("failed reading config file %q: %w", path, err)
 	}
 
 	if err := json.Unmarshal(data, &fileConfig); err != nil {
-		return nil, fmt.Errorf("error decoding config file %q: %w", path, err)
+		return nil, fmt.Errorf("failed decoding config file %q: %w", path, err)
 	}
 
 	km := make(keyMap, len(fileConfig))
