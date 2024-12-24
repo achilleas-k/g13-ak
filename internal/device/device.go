@@ -113,6 +113,9 @@ func (d *G13Device) ReadInput() (uint64, error) {
 }
 
 func (d *G13Device) ReadBytes() ([]byte, error) {
+	if d.iep == nil {
+		return nil, fmt.Errorf("tried to read bytes from a closed device")
+	}
 	buf := make([]byte, 1*d.iep.Desc.MaxPacketSize)
 	if _, err := d.iep.Read(buf); err != nil {
 		return nil, fmt.Errorf("failed reading from device: %w", err)
