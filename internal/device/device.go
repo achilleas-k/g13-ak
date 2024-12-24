@@ -8,6 +8,7 @@ package device
 import (
 	"encoding/binary"
 	"fmt"
+	"os"
 
 	"github.com/google/gousb"
 )
@@ -84,6 +85,11 @@ func New() (Device, error) {
 }
 
 func (d *G13Device) Close() {
+	if d.dev != nil {
+		if err := d.ResetBacklightColour(); err != nil {
+			fmt.Fprintf(os.Stderr, "error resetting backlight during shutdown: %s", err)
+		}
+	}
 	if d.ctx != nil {
 		defer d.ctx.Close()
 	}
