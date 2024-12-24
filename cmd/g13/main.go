@@ -7,10 +7,29 @@ import (
 	"github.com/achilleas-k/g13-ak/internal/device"
 	"github.com/achilleas-k/g13-ak/internal/keyboard"
 	"github.com/achilleas-k/g13-ak/internal/mapping"
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	configPath := os.Args[1]
+func mkcmd() *cobra.Command {
+	rootCmd := cobra.Command{
+		Use:                   "g13 <config>",
+		Args:                  cobra.ExactArgs(1),
+		Long:                  "Userspace Linux driver for the Logitech G13 gameboard",
+		Version:               "devel",
+		RunE:                  g13,
+		DisableFlagsInUseLine: true, // don't put [flags] at the end of the Use line
+	}
+
+	return &rootCmd
+}
+
+func g13(cmd *cobra.Command, args []string) error {
+	// SilenceUsage if the command executed correctly.
+	// Argument parsing has already succeeded, so any error returned here
+	// shouldn't show usage instructions but just print the error message.
+	cmd.SilenceUsage = true
+
+	configPath := args[0]
 
 	dev, err := device.New()
 	if err != nil {
@@ -45,5 +64,14 @@ func main() {
 				fmt.Fprintf(os.Stderr, "keyboard error releasing %d: %s\n", kbkey, err)
 			}
 		}
+	}
+}
+
+func main() {
+	cmd := mkcmd()
+	if err := cmd.Execute(); err != nil {
+		// Don't print anything: Cobra will print error message with usage if
+		// necessary
+		os.Exit(1)
 	}
 }
