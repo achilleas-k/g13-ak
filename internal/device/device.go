@@ -21,6 +21,7 @@ type Device interface {
 	Close()
 	ReadBytes() ([]byte, error)
 	ReadInput() (uint64, error)
+	SetBacklightColour(r, g, b uint8) error
 }
 
 type G13Device struct {
