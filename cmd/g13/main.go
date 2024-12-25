@@ -50,7 +50,9 @@ func g13(cmd *cobra.Command, args []string) error {
 	for {
 		input, err := dev.ReadInput()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "e: %s\n", err)
+			fmt.Fprintf(os.Stderr, "read error: %s\n", err)
+			// TODO: reset the device connection if it's not responding
+			continue
 		}
 		for kbkey, isDown := range keyMap.GetKeyStates(input) {
 			if isDown {
