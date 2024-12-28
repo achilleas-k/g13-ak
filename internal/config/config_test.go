@@ -1,12 +1,12 @@
-package mapping_test
+package config_test
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/achilleas-k/g13-ak/internal/config"
 	"github.com/achilleas-k/g13-ak/internal/device"
-	"github.com/achilleas-k/g13-ak/internal/mapping"
 	"github.com/bendahl/uinput"
 	"github.com/stretchr/testify/assert"
 )
@@ -193,10 +193,10 @@ func TestNewFromFile(t *testing.T) {
 			err := os.WriteFile(cfgPath, []byte(tc.configData), 0o660)
 			assert.NoError(err)
 
-			m, err := mapping.NewFromFile(cfgPath)
+			m, err := config.NewFromFile(cfgPath)
 			assert.NoError(err)
 
-			expectedMapping := mapping.NewEmpty()
+			expectedMapping := config.NewEmpty()
 			expectedMapping.SetKeys(tc.expectedKeymap)
 			assert.Equal(m, expectedMapping)
 		})
@@ -209,7 +209,7 @@ func TestNewFromFileError(t *testing.T) {
 
 		tmpdir := t.TempDir()
 		cfgPath := filepath.Join(tmpdir, "mapping.json")
-		_, err := mapping.NewFromFile(cfgPath)
+		_, err := config.NewFromFile(cfgPath)
 		assert.ErrorContains(err, "no such file or directory")
 	})
 
@@ -222,7 +222,7 @@ func TestNewFromFileError(t *testing.T) {
 		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"G23":"KeyA"}}`), 0o660)
 		assert.NoError(err)
 
-		_, err = mapping.NewFromFile(cfgPath)
+		_, err = config.NewFromFile(cfgPath)
 		assert.EqualError(err, "unknown G13 key name: G23")
 	})
 
@@ -235,7 +235,7 @@ func TestNewFromFileError(t *testing.T) {
 		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"G2":"NotAKey"}}`), 0o660)
 		assert.NoError(err)
 
-		_, err = mapping.NewFromFile(cfgPath)
+		_, err = config.NewFromFile(cfgPath)
 		assert.EqualError(err, "unknown keyboard key name: NotAKey")
 	})
 
@@ -248,7 +248,7 @@ func TestNewFromFileError(t *testing.T) {
 		err := os.WriteFile(cfgPath, []byte(`{}`), 0o000)
 		assert.NoError(err)
 
-		_, err = mapping.NewFromFile(cfgPath)
+		_, err = config.NewFromFile(cfgPath)
 		assert.ErrorContains(err, "failed opening config file")
 		assert.ErrorContains(err, "permission denied")
 	})
@@ -262,7 +262,7 @@ func TestNewFromFileError(t *testing.T) {
 		err := os.WriteFile(cfgPath, []byte(`[]`), 0o660)
 		assert.NoError(err)
 
-		_, err = mapping.NewFromFile(cfgPath)
+		_, err = config.NewFromFile(cfgPath)
 		assert.ErrorContains(err, "failed decoding config file")
 		assert.ErrorContains(err, "cannot unmarshal array into Go value")
 	})
@@ -270,6 +270,6 @@ func TestNewFromFileError(t *testing.T) {
 
 func TestDefaultConfig(t *testing.T) {
 	cfgPath := "../../configs/default.json"
-	_, err := mapping.NewFromFile(cfgPath)
+	_, err := config.NewFromFile(cfgPath)
 	assert.NoError(t, err)
 }

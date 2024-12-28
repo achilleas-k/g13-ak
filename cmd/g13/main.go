@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/achilleas-k/g13-ak/internal/config"
 	"github.com/achilleas-k/g13-ak/internal/device"
 	"github.com/achilleas-k/g13-ak/internal/keyboard"
-	"github.com/achilleas-k/g13-ak/internal/mapping"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ func g13(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
 
 	configPath := args[0]
-	keyMap, err := mapping.NewFromFile(configPath)
+	g13cfg, err := config.NewFromFile(configPath)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func g13(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "e: %s\n", err)
 		}
-		for kbkey, isDown := range keyMap.GetKeyStates(input) {
+		for kbkey, isDown := range g13cfg.GetKeyStates(input) {
 			if isDown {
 				if err := vkb.KeyDown(kbkey); err != nil {
 					fmt.Fprintf(os.Stderr, "keyboard error pressing %d: %s\n", kbkey, err)

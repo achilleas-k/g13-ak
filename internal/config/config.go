@@ -1,6 +1,6 @@
-// Package mapping provides functionality for mapping G13 buttons to keyboard
-// keys.
-package mapping
+// Package config provides functionality for loading and defining the device
+// configuration, which includes mapping G13 buttons to keyboard keys.
+package config
 
 import (
 	"encoding/json"
@@ -33,7 +33,7 @@ func NewFromFile(path string) (*G13Config, error) {
 		return nil, err
 	}
 
-	return configToMapping(km)
+	return convertConfig(km)
 }
 
 // SetKey maps a G13 key to the given keyboard key.
@@ -98,7 +98,8 @@ func loadConfig(path string) (*fileConfig, error) {
 	return &cfg, nil
 }
 
-func configToMapping(cfg *fileConfig) (*G13Config, error) {
+// Convert the on-disk fileConfig to a G13Config.
+func convertConfig(cfg *fileConfig) (*G13Config, error) {
 	km := make(keyMap, len(cfg.Mapping))
 	for gKeyStr, kbKeyStr := range cfg.Mapping {
 		gKey := device.KeyCode(gKeyStr)
