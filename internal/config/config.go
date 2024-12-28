@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"image"
 	"os"
+	"path/filepath"
 
 	"github.com/achilleas-k/g13-ak/internal/device"
 	"github.com/achilleas-k/g13-ak/internal/keyboard"
@@ -36,12 +37,12 @@ func NewEmpty() *G13Config {
 
 // NewFromFile returns a [G13Config] initialised from the file at the given path.
 func NewFromFile(path string) (*G13Config, error) {
-	km, err := loadConfig(path)
+	cfg, err := loadConfig(path)
 	if err != nil {
 		return nil, err
 	}
 
-	return convertConfig(km)
+	return cfg, nil
 }
 
 // SetKey maps a G13 key to the given keyboard key.
@@ -117,7 +118,7 @@ type backlightFileConfig struct {
 	Blue  uint8 `json:"blue"`
 }
 
-func loadConfig(path string) (*fileConfig, error) {
+func loadConfig(path string) (*G13Config, error) {
 	configFile, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed opening config file %q: %w", path, err)
@@ -130,11 +131,6 @@ func loadConfig(path string) (*fileConfig, error) {
 		return nil, fmt.Errorf("failed decoding config file %q: %w", path, err)
 	}
 
-	return &cfg, nil
-}
-
-// Convert the on-disk fileConfig to a G13Config.
-func convertConfig(cfg *fileConfig) (*G13Config, error) {
 	errPrefix := "failed reading config file"
 	km := make(keyMap, len(cfg.Mapping))
 	for gKeyStr, kbKeyStr := range cfg.Mapping {
@@ -151,12 +147,27 @@ func convertConfig(cfg *fileConfig) (*G13Config, error) {
 
 	backlight := [3]uint8{cfg.Backlight.Red, cfg.Backlight.Green, cfg.Backlight.Blue}
 
-	// just check if the image file exists and is stat-able if it's set; no
-	// need for any extra validation right now
-	if cfg.ImageFile != "" {
-		_, err := os.Stat(cfg.ImageFile)
+	imageFile := cfg.ImageFile
+
+	if imageFile != "" {
+		// The image file, if defined, should be relative to the config file
+		// (unless it's already absolute)
+		if !filepath.IsAbs(imageFile) {
+			println(imageFile)
+			cfgDir, err := filepath.Abs(filepath.Dir(path))
+			if err != nil {
+				return nil, fmt.Errorf("failed to get absolute path of config file %q: %w", path, err)
+			}
+			println(cfgDir)
+			imageFile = filepath.Clean(filepath.Join(cfgDir, imageFile))
+			println(imageFile)
+		}
+
+		// Check if the image file exists and is stat-able if it's set; no
+		// need for any extra validation right now
+		_, err := os.Stat(imageFile)
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("%s: image file %q in config file does not exist", errPrefix, cfg.ImageFile)
+			return nil, fmt.Errorf("%s: image file %q set in config file does not exist", errPrefix, cfg.ImageFile)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", errPrefix, err)
@@ -166,6 +177,6 @@ func convertConfig(cfg *fileConfig) (*G13Config, error) {
 	return &G13Config{
 		keyMap:    km,
 		backlight: backlight,
-		lcdImage:  cfg.ImageFile,
+		lcdImage:  imageFile,
 	}, nil
 }
