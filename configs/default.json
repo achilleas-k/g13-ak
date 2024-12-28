@@ -24,5 +24,10 @@
     "G22": "KeyLeftalt",
     "LEFT": "KeySpace",
     "DOWN": "KeyEsc"
+  },
+  "backlight": {
+    "red": 23,
+    "green": 147,
+    "blue": 209
   }
 }
