@@ -70,6 +70,10 @@ func (m *G13Config) GetKeyStates(input uint64) map[int]bool {
 	return kbkeys
 }
 
+func (cfg *G13Config) GetBacklight() [3]uint8 {
+	return cfg.backlight
+}
+
 // fileConfig describes the on-disk file format for the config file.
 type fileConfig struct {
 	Mapping   map[string]string   `json:"mapping"`
