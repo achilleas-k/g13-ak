@@ -13,8 +13,14 @@ import (
 
 // G13Config maps G13 keys to uinput key codes.
 type G13Config struct {
-	keyMap    keyMap
+	// mapping from G keys to keyboard keycodes
+	keyMap keyMap
+
+	// backlight rgb
 	backlight [3]uint8
+
+	// path to image configured for the display
+	lcdImage string
 }
 
 type keyMap map[device.KeyBit]int
@@ -78,6 +84,7 @@ func (cfg *G13Config) GetBacklight() [3]uint8 {
 type fileConfig struct {
 	Mapping   map[string]string   `json:"mapping"`
 	Backlight backlightFileConfig `json:"backlight"`
+	ImageFile string              `json:"image_file"`
 }
 
 type backlightFileConfig struct {
@@ -104,23 +111,37 @@ func loadConfig(path string) (*fileConfig, error) {
 
 // Convert the on-disk fileConfig to a G13Config.
 func convertConfig(cfg *fileConfig) (*G13Config, error) {
+	errPrefix := "failed reading config file"
 	km := make(keyMap, len(cfg.Mapping))
 	for gKeyStr, kbKeyStr := range cfg.Mapping {
 		gKey := device.KeyCode(gKeyStr)
 		if gKey == 0 {
-			return nil, fmt.Errorf("unknown G13 key name: %s", gKeyStr)
+			return nil, fmt.Errorf("%s: unknown G13 key name: %s", errPrefix, gKeyStr)
 		}
 		kbKey := keyboard.KeyCode(kbKeyStr)
 		if kbKey == 0 {
-			return nil, fmt.Errorf("unknown keyboard key name: %s", kbKeyStr)
+			return nil, fmt.Errorf("%s: unknown keyboard key name: %s", errPrefix, kbKeyStr)
 		}
 		km[gKey] = kbKey
 	}
 
 	backlight := [3]uint8{cfg.Backlight.Red, cfg.Backlight.Green, cfg.Backlight.Blue}
 
+	// just check if the image file exists and is stat-able if it's set; no
+	// need for any extra validation right now
+	if cfg.ImageFile != "" {
+		_, err := os.Stat(cfg.ImageFile)
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("%s: image file %q in config file does not exist", errPrefix, cfg.ImageFile)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", errPrefix, err)
+		}
+	}
+
 	return &G13Config{
 		keyMap:    km,
 		backlight: backlight,
+		lcdImage:  cfg.ImageFile,
 	}, nil
 }
