@@ -250,6 +250,20 @@ func TestNewFromFileError(t *testing.T) {
 		assert.ErrorContains(err, "failed opening config file")
 		assert.ErrorContains(err, "permission denied")
 	})
+
+	t.Run("wrong-format", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+
+		err := os.WriteFile(cfgPath, []byte(`[]`), 0o660)
+		assert.NoError(err)
+
+		_, err = mapping.NewFromFile(cfgPath)
+		assert.ErrorContains(err, "failed decoding config file")
+		assert.ErrorContains(err, "cannot unmarshal array into Go value")
+	})
 }
 
 func TestDefaultConfig(t *testing.T) {
