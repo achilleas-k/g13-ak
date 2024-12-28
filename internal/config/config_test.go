@@ -259,12 +259,12 @@ func TestNewFromFileError(t *testing.T) {
 		tmpdir := t.TempDir()
 		cfgPath := filepath.Join(tmpdir, "mapping.json")
 
-		err := os.WriteFile(cfgPath, []byte(`[]`), 0o660)
+		err := os.WriteFile(cfgPath, []byte(`{"bad-top-level-config-key":{}}`), 0o660)
 		assert.NoError(err)
 
 		_, err = config.NewFromFile(cfgPath)
 		assert.ErrorContains(err, "failed decoding config file")
-		assert.ErrorContains(err, "cannot unmarshal array into Go value")
+		assert.ErrorContains(err, "unknown field \"bad-top-level-config-key\"")
 	})
 }
 
