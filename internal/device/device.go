@@ -31,6 +31,7 @@ type G13Device struct {
 	cfg  *gousb.Config
 	intf *gousb.Interface
 	iep  *gousb.InEndpoint
+	oep  *gousb.OutEndpoint
 }
 
 // New returns an initialised [G13Device] for a connected G13 gameboard. It
@@ -81,6 +82,12 @@ func New() (Device, error) {
 	ep.Desc.TransferType = gousb.TransferTypeInterrupt
 	d.iep = ep
 
+	op, err := intf.OutEndpoint(2)
+	if err != nil {
+		d.Close()
+		return nil, fmt.Errorf("failed to initialise output endpoint: %w", err)
+	}
+	d.oep = op
 	return &d, nil
 }
 
