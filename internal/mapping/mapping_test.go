@@ -236,6 +236,20 @@ func TestNewFromFileError(t *testing.T) {
 		_, err = mapping.NewFromFile(cfgPath)
 		assert.EqualError(err, "unknown keyboard key name: NotAKey")
 	})
+
+	t.Run("permission-denied", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+
+		err := os.WriteFile(cfgPath, []byte(`{}`), 0o000)
+		assert.NoError(err)
+
+		_, err = mapping.NewFromFile(cfgPath)
+		assert.ErrorContains(err, "failed opening config file")
+		assert.ErrorContains(err, "permission denied")
+	})
 }
 
 func TestDefaultConfig(t *testing.T) {
