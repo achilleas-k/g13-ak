@@ -99,6 +99,9 @@ func (d *G13Device) Close() {
 		if err := d.ResetBacklightColour(); err != nil {
 			fmt.Fprintf(os.Stderr, "error resetting backlight during shutdown: %s", err)
 		}
+		if err := d.ResetLCD(); err != nil {
+			fmt.Fprintf(os.Stderr, "error resetting LCD during shutdown: %s", err)
+		}
 	}
 	if d.ctx != nil {
 		defer d.ctx.Close()
