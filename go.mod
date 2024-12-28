@@ -7,6 +7,7 @@ require (
 	github.com/google/gousb v1.1.3
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.10.0
+	golang.org/x/image v0.23.0
 )
 
 require (
