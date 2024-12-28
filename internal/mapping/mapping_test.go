@@ -237,3 +237,9 @@ func TestNewFromFileError(t *testing.T) {
 		assert.EqualError(err, "unknown keyboard key name: NotAKey")
 	})
 }
+
+func TestDefaultConfig(t *testing.T) {
+	cfgPath := "../../configs/default.json"
+	_, err := mapping.NewFromFile(cfgPath)
+	assert.NoError(t, err)
+}
