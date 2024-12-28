@@ -73,12 +73,14 @@ func (m *Mapping) GetKeyStates(input uint64) map[int]bool {
 
 func loadConfig(path string) (keyMap, error) {
 	fileConfig := map[string]string{}
-	data, err := os.ReadFile(path)
+	configFile, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed reading config file %q: %w", path, err)
+		return nil, fmt.Errorf("failed opening config file %q: %w", path, err)
 	}
 
-	if err := json.Unmarshal(data, &fileConfig); err != nil {
+	decoder := json.NewDecoder(configFile)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&fileConfig); err != nil {
 		return nil, fmt.Errorf("failed decoding config file %q: %w", path, err)
 	}
 
