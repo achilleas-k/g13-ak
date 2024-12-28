@@ -46,7 +46,8 @@ func g13(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("virtual keyboard initialisation failed: %w", err)
 	}
 
-	if err := dev.SetBacklightColour(255, 0, 0); err != nil {
+	backlight := g13cfg.GetBacklight()
+	if err := dev.SetBacklightColour(backlight[0], backlight[1], backlight[2]); err != nil {
 		return err
 	}
 
