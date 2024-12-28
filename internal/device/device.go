@@ -8,6 +8,7 @@ package device
 import (
 	"encoding/binary"
 	"fmt"
+	"image"
 	"os"
 
 	"github.com/google/gousb"
@@ -23,6 +24,8 @@ type Device interface {
 	ReadBytes() ([]byte, error)
 	ReadInput() (uint64, error)
 	SetBacklightColour(r, g, b uint8) error
+	SetLCD(image.Image) error
+	ResetLCD() error
 }
 
 type G13Device struct {
