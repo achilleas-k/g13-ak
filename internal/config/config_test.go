@@ -223,7 +223,7 @@ func TestNewFromFileError(t *testing.T) {
 		assert.NoError(err)
 
 		_, err = config.NewFromFile(cfgPath)
-		assert.EqualError(err, "unknown G13 key name: G23")
+		assert.EqualError(err, "failed reading config file: unknown G13 key name: G23")
 	})
 
 	t.Run("bad-kb-key", func(t *testing.T) {
@@ -236,7 +236,7 @@ func TestNewFromFileError(t *testing.T) {
 		assert.NoError(err)
 
 		_, err = config.NewFromFile(cfgPath)
-		assert.EqualError(err, "unknown keyboard key name: NotAKey")
+		assert.EqualError(err, "failed reading config file: unknown keyboard key name: NotAKey")
 	})
 
 	t.Run("permission-denied", func(t *testing.T) {
