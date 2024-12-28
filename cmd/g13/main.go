@@ -68,6 +68,16 @@ func g13(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if g13cfg.GetImagePath() != "" {
+		lcdImg, err := g13cfg.GetImage()
+		if err != nil {
+			return err
+		}
+		if err := dev.SetLCD(lcdImg); err != nil {
+			return err
+		}
+	}
+
 	fmt.Println("Ready")
 	for {
 		input, err := dev.ReadInput()

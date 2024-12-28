@@ -5,10 +5,12 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"image"
 	"os"
 
 	"github.com/achilleas-k/g13-ak/internal/device"
 	"github.com/achilleas-k/g13-ak/internal/keyboard"
+	"golang.org/x/image/bmp"
 )
 
 // G13Config maps G13 keys to uinput key codes.
@@ -78,6 +80,28 @@ func (m *G13Config) GetKeyStates(input uint64) map[int]bool {
 
 func (cfg *G13Config) GetBacklight() [3]uint8 {
 	return cfg.backlight
+}
+
+func (cfg *G13Config) GetImagePath() string {
+	return cfg.lcdImage
+}
+
+func (cfg *G13Config) GetImage() (image.Image, error) {
+	path := cfg.lcdImage
+	if path == "" {
+		return nil, fmt.Errorf("no image file defined in config")
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open image file %q: %w", path, err)
+	}
+	img, err := bmp.Decode(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read image file %q: %w", path, err)
+	}
+
+	return img, nil
+
 }
 
 // fileConfig describes the on-disk file format for the config file.
