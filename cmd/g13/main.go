@@ -56,6 +56,7 @@ func g13(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("device initialisation failed: %w", err)
 	}
 	setCleanupHandler(func() { dev.Close() })
+	defer dev.Close()
 
 	vkb, err := keyboard.New("g13-vkb")
 	if err != nil {
