@@ -103,12 +103,43 @@ func (m *G13Config) Reset() {
 // GetKeyStates returns the state of each mapped keyboard key for the given
 // input (from [device.ReadInput]). The result maps a keyboard keycode to a
 // state, true for down (pressed) and false for up (released).
-func (m *G13Config) GetKeyStates(input uint64) map[int]bool {
-	kbkeys := make(map[int]bool, len(m.mapping.keyMap))
-	for gkey, kbkey := range m.mapping.keyMap {
+func (cfg *G13Config) GetKeyStates(input uint64) map[int]bool {
+	kbkeys := make(map[int]bool, len(cfg.mapping.keyMap))
+	for gkey, kbkey := range cfg.mapping.keyMap {
 		kbkeys[kbkey] = (gkey.Uint64() & input) != 0
 	}
+
+	if cfg.mapping.stick.mode == StickModeKeys {
+		var activeZone uint8 = 64 // TODO: make this configurable
+
+		stickKeys := cfg.mapping.stick.keys
+
+		// get the stick position and add the mapped key(s)
+		x, y := device.StickPosition(input)
+		if x <= activeZone && stickKeys.Left != 0 {
+			kbkeys[stickKeys.Left] = true
+		}
+		if x >= 255-activeZone && stickKeys.Right != 0 {
+			kbkeys[stickKeys.Right] = true
+		}
+		if y <= activeZone && stickKeys.Up != 0 {
+			kbkeys[stickKeys.Up] = true
+		}
+		if y >= 255-activeZone && stickKeys.Down != 0 {
+			kbkeys[stickKeys.Down] = true
+		}
+	}
 	return kbkeys
+}
+
+func (cfg *G13Config) GetStickState(input uint64) (uint8, uint8) {
+	// NOTE: stick mode is not supported yet, but when eventually the result of
+	// this function will be used to set the joystick position
+	if cfg.mapping.stick.mode != StickModeJoystick {
+		return 0, 0
+	}
+
+	return device.StickPosition(input)
 }
 
 func (cfg *G13Config) GetBacklight() [3]uint8 {
