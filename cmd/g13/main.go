@@ -93,6 +93,8 @@ func g13(cmd *cobra.Command, args []string) error {
 				fmt.Fprintf(os.Stderr, "keyboard error releasing %d: %s\n", kbkey, err)
 			}
 		}
+		x, y := g13cfg.GetStickState(input)
+		fmt.Printf("Stick: %d %d\n", x, y)
 	}
 }
 

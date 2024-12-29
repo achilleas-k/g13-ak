@@ -79,6 +79,15 @@ func (m *G13Config) GetKeyStates(input uint64) map[int]bool {
 	return kbkeys
 }
 
+func (cfg *G13Config) GetStickState(input uint64) (uint64, uint64) {
+	xMask := uint64(255 << 16)
+	yMask := uint64(255 << 8)
+
+	x := (input & xMask) >> 16
+	y := (input & yMask) >> 8
+	return x, y
+}
+
 func (cfg *G13Config) GetBacklight() [3]uint8 {
 	return cfg.backlight
 }
