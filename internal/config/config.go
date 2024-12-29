@@ -167,7 +167,7 @@ func loadConfig(path string) (*G13Config, error) {
 		// need for any extra validation right now
 		_, err := os.Stat(imageFile)
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("%s: image file %q set in config file does not exist", errPrefix, cfg.ImageFile)
+			return nil, fmt.Errorf("%s: image file %q (%s) set in config file does not exist", errPrefix, cfg.ImageFile, imageFile)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", errPrefix, err)
