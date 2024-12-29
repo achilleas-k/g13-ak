@@ -122,7 +122,7 @@ func imageToG13Bytes(img image.Image) []uint8 {
 			r, g, b, _ := img.At(x, y).RGBA()
 			// convert the image to monochrome by turning on any non-white
 			// pixels
-			if r+g+b == 0 {
+			if r+g+b < 255*3 {
 				byteIdx := y/8*LCDWidth + x // index of the byte that represents the 8-pixel column we're in
 				bitIdx := y % 8             // index of the bit (within the byte) to flip on
 
