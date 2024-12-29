@@ -287,3 +287,60 @@ func TestDefaultConfig(t *testing.T) {
 	_, err := config.NewFromFile(cfgPath)
 	assert.NoError(t, err)
 }
+
+func TestGetImageErrors(t *testing.T) {
+	t.Run("no-image-in-config", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+
+		err := os.WriteFile(cfgPath, []byte("{}"), 0o660)
+		assert.NoError(err)
+
+		cfg, err := config.NewFromFile(cfgPath)
+		assert.NoError(err)
+
+		assert.Equal("", cfg.GetImagePath())
+		_, err = cfg.GetImage()
+		assert.EqualError(err, "no image file defined in config")
+	})
+
+	t.Run("cant-open-image-file", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+
+		err := os.WriteFile(cfgPath, []byte(`{"image_file":"0.bmp"}`), 0o660)
+		assert.NoError(err)
+
+		fp, err := os.OpenFile(filepath.Join(tmpdir, "0.bmp"), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0000)
+		assert.NoError(err)
+		fp.Close()
+
+		cfg, err := config.NewFromFile(cfgPath)
+		assert.NoError(err)
+
+		_, err = cfg.GetImage()
+		assert.ErrorContains(err, "failed to open image file")
+		assert.ErrorContains(err, "permission denied")
+	})
+
+	t.Run("unreadable-image-file", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+
+		err := os.WriteFile(cfgPath, []byte(`{"image_file":"/dev/zero"}`), 0o660)
+		assert.NoError(err)
+
+		cfg, err := config.NewFromFile(cfgPath)
+		assert.NoError(err)
+
+		_, err = cfg.GetImage()
+		assert.ErrorContains(err, "failed to read image file")
+		assert.ErrorContains(err, "invalid format")
+	})
+}
