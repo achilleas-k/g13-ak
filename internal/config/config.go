@@ -153,14 +153,11 @@ func loadConfig(path string) (*G13Config, error) {
 		// The image file, if defined, should be relative to the config file
 		// (unless it's already absolute)
 		if !filepath.IsAbs(imageFile) {
-			println(imageFile)
 			cfgDir, err := filepath.Abs(filepath.Dir(path))
 			if err != nil {
 				return nil, fmt.Errorf("failed to get absolute path of config file %q: %w", path, err)
 			}
-			println(cfgDir)
 			imageFile = filepath.Clean(filepath.Join(cfgDir, imageFile))
-			println(imageFile)
 		}
 
 		// Check if the image file exists and is stat-able if it's set; no
