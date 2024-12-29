@@ -266,6 +266,20 @@ func TestNewFromFileError(t *testing.T) {
 		assert.ErrorContains(err, "failed decoding config file")
 		assert.ErrorContains(err, "unknown field \"bad-top-level-config-key\"")
 	})
+
+	t.Run("image-does-not-exist", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+
+		err := os.WriteFile(cfgPath, []byte(`{"image_file":"1c606e45-c739-43a8-bcc4-39b8c9845794.bmp"}`), 0o660)
+		assert.NoError(err)
+
+		_, err = config.NewFromFile(cfgPath)
+		assert.ErrorContains(err, "failed reading config file: image file")
+		assert.ErrorContains(err, "set in config file does not exist")
+	})
 }
 
 func TestDefaultConfig(t *testing.T) {
