@@ -35,6 +35,15 @@
       "M3": "KeyL",
       "MR": "KeyI",
       "TOP": "KeyApostrophe"
+    },
+    "stick": {
+      "mode": "keys",
+      "keys": {
+        "Up": "KeyW",
+        "Down": "KeyS",
+        "Left": "KeyA",
+        "Right": "KeyD"
+      }
     }
   },
   "backlight": {
