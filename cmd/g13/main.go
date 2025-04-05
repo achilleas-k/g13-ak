@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/achilleas-k/g13-ak/internal/config"
 	"github.com/achilleas-k/g13-ak/internal/device"
@@ -39,6 +40,35 @@ func setCleanupHandler(cleanup func()) {
 	}()
 }
 
+func initialise(g13cfg *config.G13Config) (device.Device, keyboard.Keyboard, error) {
+	dev, err := device.New()
+	if err != nil {
+		return nil, nil, fmt.Errorf("device initialisation failed: %w", err)
+	}
+	setCleanupHandler(dev.Close)
+
+	vkb, err := keyboard.New("g13-vkb")
+	if err != nil {
+		return nil, nil, fmt.Errorf("virtual keyboard initialisation failed: %w", err)
+	}
+
+	backlight := g13cfg.GetBacklight()
+	if err := dev.SetBacklightColour(backlight[0], backlight[1], backlight[2]); err != nil {
+		return nil, nil, err
+	}
+
+	if g13cfg.GetImagePath() != "" {
+		lcdImg, err := g13cfg.GetImage()
+		if err != nil {
+			return nil, nil, err
+		}
+		if err := dev.SetLCD(lcdImg); err != nil {
+			return nil, nil, err
+		}
+	}
+	return dev, vkb, nil
+}
+
 func g13(cmd *cobra.Command, args []string) error {
 	// SilenceUsage if the command executed correctly.
 	// Argument parsing has already succeeded, so any error returned here
@@ -51,39 +81,48 @@ func g13(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	dev, err := device.New()
+	dev, vkb, err := initialise(g13cfg)
 	if err != nil {
-		return fmt.Errorf("device initialisation failed: %w", err)
-	}
-	setCleanupHandler(func() { dev.Close() })
-	defer dev.Close()
-
-	vkb, err := keyboard.New("g13-vkb")
-	if err != nil {
-		return fmt.Errorf("virtual keyboard initialisation failed: %w", err)
-	}
-
-	backlight := g13cfg.GetBacklight()
-	if err := dev.SetBacklightColour(backlight[0], backlight[1], backlight[2]); err != nil {
 		return err
 	}
 
-	if g13cfg.GetImagePath() != "" {
-		lcdImg, err := g13cfg.GetImage()
-		if err != nil {
-			return err
+	defer func() {
+		dev.Close()
+		if err := vkb.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing keyboard during shutdown: %s", err)
 		}
-		if err := dev.SetLCD(lcdImg); err != nil {
-			return err
-		}
-	}
+	}()
 
 	fmt.Println("Ready")
+	var consecutiveReadErrors uint8 = 0
 	for {
+		if consecutiveReadErrors > 3 {
+			fmt.Println("Reinitialising device")
+			dev.Close()
+			dev = nil
+			if err := vkb.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing vkb: %s\n", err)
+			}
+			// After 3 consecutive read errors, try to reinitialise the device.
+			// This is primarily meant to handle device disconnections.
+			dev, vkb, err = initialise(g13cfg)
+			if err != nil {
+				return err
+			}
+			consecutiveReadErrors = 0
+			fmt.Println("Device restored")
+		}
+
 		input, err := dev.ReadInput()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "e: %s\n", err)
+			fmt.Fprintf(os.Stderr, "e: %s (%d)\n", err, consecutiveReadErrors)
+			consecutiveReadErrors++
+			// wait a bit before continuing to try to read
+			time.Sleep(500 * time.Millisecond)
+			continue
 		}
+
+		consecutiveReadErrors = 0
 		for kbkey, isDown := range g13cfg.GetKeyStates(input) {
 			if isDown {
 				if err := vkb.KeyDown(kbkey); err != nil {
