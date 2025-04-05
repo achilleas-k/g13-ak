@@ -1,6 +1,7 @@
 package config
 
 import (
+	_ "embed"
 	"os"
 	"path/filepath"
 	"testing"
@@ -9,6 +10,9 @@ import (
 	"github.com/bendahl/uinput"
 	"github.com/stretchr/testify/assert"
 )
+
+//go:embed test_fullconfig.json
+var fullconfig string
 
 func TestLoadConfig(t *testing.T) {
 	type testCase struct {
@@ -37,52 +41,7 @@ func TestLoadConfig(t *testing.T) {
 			},
 		},
 		"full": {
-			configData: `{
-	"mapping": {
-		"keys": {
-			"G1": "KeyLeftctrl",
-			"G2": "KeyRightbrace",
-			"G3": "Key4",
-			"G4": "KeyO",
-			"G5": "Key2",
-			"G6": "KeyP",
-			"G7": "KeyBackspace",
-			"G8": "KeyF2",
-			"G9": "KeyEsc",
-			"G10": "KeyLeftbrace",
-			"G11": "KeyF",
-			"G12": "KeyRightshift",
-			"G13": "KeyU",
-			"G14": "KeyCapslock",
-			"G15": "KeySlash",
-			"G16": "KeyG",
-			"G17": "Key7",
-			"G18": "KeyR",
-			"G19": "KeyK",
-			"G20": "KeyV",
-			"G21": "KeyE",
-			"G22": "KeyC",
-			"L1": "KeyY",
-			"L2": "KeyH",
-			"L3": "Key8",
-			"L4": "KeyX",
-			"LEFT": "KeyA",
-			"DOWN": "Key5",
-			"BD": "KeyGrave",
-			"M1": "KeyTab",
-			"M2": "KeyF6",
-			"M3": "KeyL",
-			"MR": "KeyI",
-			"TOP": "KeyApostrophe"
-		}
-	},
-	"backlight": {
-		"red": 155,
-		"green": 100,
-		"blue": 200
-	},
-	"image_file": "/dev/null"
-}`,
+			configData: fullconfig,
 			expectedConfig: G13Config{
 				mapping: Mapping{
 					keyMap: map[device.KeyBit]int{
