@@ -12,7 +12,6 @@ import (
 )
 
 func TestNewFromFile(t *testing.T) {
-
 	type testCase struct {
 		configData     string
 		expectedKeymap map[device.KeyBit]int
@@ -24,7 +23,7 @@ func TestNewFromFile(t *testing.T) {
 			expectedKeymap: map[device.KeyBit]int{},
 		},
 		"simple": {
-			configData: `{"mapping":{"G1":"Key1","G22":"KeyT"}}`,
+			configData: `{"mapping":{"keys":{"G1":"Key1","G22":"KeyT"}}}`,
 			expectedKeymap: map[device.KeyBit]int{
 				device.G1:  uinput.Key1,
 				device.G22: uinput.KeyT,
@@ -33,40 +32,42 @@ func TestNewFromFile(t *testing.T) {
 		"full": {
 			configData: `{
 	"mapping": {
-		"G1": "KeyLeftctrl",
-		"G2": "KeyRightbrace",
-		"G3": "Key4",
-		"G4": "KeyO",
-		"G5": "Key2",
-		"G6": "KeyP",
-		"G7": "KeyBackspace",
-		"G8": "KeyF2",
-		"G9": "KeyEsc",
-		"G10": "KeyLeftbrace",
-		"G11": "KeyF",
-		"G12": "KeyRightshift",
-		"G13": "KeyU",
-		"G14": "KeyCapslock",
-		"G15": "KeySlash",
-		"G16": "KeyG",
-		"G17": "Key7",
-		"G18": "KeyR",
-		"G19": "KeyK",
-		"G20": "KeyV",
-		"G21": "KeyE",
-		"G22": "KeyC",
-		"L1": "KeyY",
-		"L2": "KeyH",
-		"L3": "Key8",
-		"L4": "KeyX",
-		"LEFT": "KeyA",
-		"DOWN": "Key5",
-		"BD": "KeyGrave",
-		"M1": "KeyTab",
-		"M2": "KeyF6",
-		"M3": "KeyL",
-		"MR": "KeyI",
-		"TOP": "KeyApostrophe"
+		"keys": {
+			"G1": "KeyLeftctrl",
+			"G2": "KeyRightbrace",
+			"G3": "Key4",
+			"G4": "KeyO",
+			"G5": "Key2",
+			"G6": "KeyP",
+			"G7": "KeyBackspace",
+			"G8": "KeyF2",
+			"G9": "KeyEsc",
+			"G10": "KeyLeftbrace",
+			"G11": "KeyF",
+			"G12": "KeyRightshift",
+			"G13": "KeyU",
+			"G14": "KeyCapslock",
+			"G15": "KeySlash",
+			"G16": "KeyG",
+			"G17": "Key7",
+			"G18": "KeyR",
+			"G19": "KeyK",
+			"G20": "KeyV",
+			"G21": "KeyE",
+			"G22": "KeyC",
+			"L1": "KeyY",
+			"L2": "KeyH",
+			"L3": "Key8",
+			"L4": "KeyX",
+			"LEFT": "KeyA",
+			"DOWN": "Key5",
+			"BD": "KeyGrave",
+			"M1": "KeyTab",
+			"M2": "KeyF6",
+			"M3": "KeyL",
+			"MR": "KeyI",
+			"TOP": "KeyApostrophe"
+		}
 	}
 }`,
 			expectedKeymap: map[device.KeyBit]int{
@@ -107,41 +108,44 @@ func TestNewFromFile(t *testing.T) {
 			},
 		},
 		"full-with-dupes": {
-			configData: `{"mapping":{
-	"G1": "KeyLeftctrl",
-	"G2": "KeyRightbrace",
-	"G3": "Key3",
-	"G4": "Key3",
-	"G5": "Key3",
-	"G6": "KeyP",
-	"G7": "KeyBackspace",
-	"G8": "KeyF2",
-	"G9": "KeyEsc",
-	"G10": "KeyLeftbrace",
-	"G11": "KeyF",
-	"G12": "KeyRightshift",
-	"G13": "KeyU",
-	"G14": "KeyCapslock",
-	"G15": "KeySlash",
-	"G16": "KeyG",
-	"G17": "Key7",
-	"G18": "KeyR",
-	"G19": "KeyK",
-	"G20": "KeyV",
-	"G21": "KeyE",
-	"G22": "KeyC",
-	"L1": "KeyY",
-	"L2": "KeyH",
-	"L3": "Key8",
-	"L4": "KeyX",
-	"LEFT": "KeyA",
-	"DOWN": "Key5",
-	"BD": "KeyGrave",
-	"M1": "KeyTab",
-	"M2": "KeyF6",
-	"M3": "KeyL",
-	"MR": "KeyI",
-	"TOP": "KeyApostrophe"
+			configData: `{
+"mapping":{
+	"keys": {
+		"G1": "KeyLeftctrl",
+		"G2": "KeyRightbrace",
+		"G3": "Key3",
+		"G4": "Key3",
+		"G5": "Key3",
+		"G6": "KeyP",
+		"G7": "KeyBackspace",
+		"G8": "KeyF2",
+		"G9": "KeyEsc",
+		"G10": "KeyLeftbrace",
+		"G11": "KeyF",
+		"G12": "KeyRightshift",
+		"G13": "KeyU",
+		"G14": "KeyCapslock",
+		"G15": "KeySlash",
+		"G16": "KeyG",
+		"G17": "Key7",
+		"G18": "KeyR",
+		"G19": "KeyK",
+		"G20": "KeyV",
+		"G21": "KeyE",
+		"G22": "KeyC",
+		"L1": "KeyY",
+		"L2": "KeyH",
+		"L3": "Key8",
+		"L4": "KeyX",
+		"LEFT": "KeyA",
+		"DOWN": "Key5",
+		"BD": "KeyGrave",
+		"M1": "KeyTab",
+		"M2": "KeyF6",
+		"M3": "KeyL",
+		"MR": "KeyI",
+		"TOP": "KeyApostrophe"
+	}
 }}`,
 			expectedKeymap: map[device.KeyBit]int{
 				device.G1:   uinput.KeyLeftctrl,
@@ -219,7 +223,7 @@ func TestNewFromFileError(t *testing.T) {
 		tmpdir := t.TempDir()
 		cfgPath := filepath.Join(tmpdir, "mapping.json")
 
-		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"G23":"KeyA"}}`), 0o660)
+		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"keys":{"G23":"KeyA"}}}`), 0o660)
 		assert.NoError(err)
 
 		_, err = config.NewFromFile(cfgPath)
@@ -232,7 +236,7 @@ func TestNewFromFileError(t *testing.T) {
 		tmpdir := t.TempDir()
 		cfgPath := filepath.Join(tmpdir, "mapping.json")
 
-		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"G2":"NotAKey"}}`), 0o660)
+		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"keys":{"G2":"NotAKey"}}}`), 0o660)
 		assert.NoError(err)
 
 		_, err = config.NewFromFile(cfgPath)
