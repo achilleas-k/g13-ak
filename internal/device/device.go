@@ -102,31 +102,31 @@ func New() (Device, error) {
 func (d *G13Device) Close() {
 	if d.dev != nil {
 		if err := d.ResetBacklightColour(); err != nil {
-			fmt.Fprintf(os.Stderr, "error resetting backlight during shutdown: %s", err)
+			fmt.Fprintf(os.Stderr, "error resetting backlight during shutdown: %s\n", err)
 		}
 		if err := d.ResetLCD(); err != nil {
-			fmt.Fprintf(os.Stderr, "error resetting LCD during shutdown: %s", err)
+			fmt.Fprintf(os.Stderr, "error resetting LCD during shutdown: %s\n", err)
 		}
 	}
 
 	if d.ctx != nil {
 		defer func() {
 			if err := d.ctx.Close(); err != nil {
-				fmt.Fprintf(os.Stderr, "error closing USB context during shutdown: %s", err)
+				fmt.Fprintf(os.Stderr, "error closing USB context during shutdown: %s\n", err)
 			}
 		}()
 	}
 	if d.dev != nil {
 		defer func() {
 			if err := d.dev.Close(); err != nil {
-				fmt.Fprintf(os.Stderr, "error closing USB device during shutdown: %s", err)
+				fmt.Fprintf(os.Stderr, "error closing USB device during shutdown: %s\n", err)
 			}
 		}()
 	}
 	if d.cfg != nil {
 		defer func() {
 			if err := d.cfg.Close(); err != nil {
-				fmt.Fprintf(os.Stderr, "error closing USB config during shutdown: %s", err)
+				fmt.Fprintf(os.Stderr, "error closing USB config during shutdown: %s\n", err)
 			}
 		}()
 	}
