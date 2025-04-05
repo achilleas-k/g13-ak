@@ -25,6 +25,15 @@
       "G22": "KeyLeftalt",
       "LEFT": "KeySpace",
       "DOWN": "KeyEsc"
+    },
+    "stick": {
+      "mode": "keys",
+      "keys": {
+        "up": "KeyUp",
+        "down": "KeyDown",
+        "left": "KeyLeft",
+        "right": "KeyRight"
+      }
     }
   },
   "backlight": {
