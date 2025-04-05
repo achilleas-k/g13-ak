@@ -17,8 +17,7 @@ import (
 
 // G13Config maps G13 keys to uinput key codes.
 type G13Config struct {
-	// mapping from G keys to keyboard keycodes
-	keyMap keyMap
+	mapping Mapping
 
 	// backlight rgb
 	backlight [3]uint8
@@ -27,12 +26,19 @@ type G13Config struct {
 	lcdImage string
 }
 
+type Mapping struct {
+	// mapping from G keys to keyboard keycodes
+	keyMap keyMap
+}
+
 type keyMap map[device.KeyBit]int
 
 // NewEmpty returns an empty [G13Config].
 func NewEmpty() *G13Config {
 	return &G13Config{
-		keyMap: make(keyMap, len(device.AllKeys())),
+		mapping: Mapping{
+			keyMap: make(keyMap, len(device.AllKeys())),
+		},
 	}
 }
 
@@ -48,31 +54,31 @@ func NewFromFile(path string) (*G13Config, error) {
 
 // SetKey maps a G13 key to the given keyboard key.
 func (m *G13Config) SetKey(gkey device.KeyBit, kbKey int) {
-	m.keyMap[gkey] = kbKey
+	m.mapping.keyMap[gkey] = kbKey
 }
 
 // SetKeys maps one or more G13 keys to the given keyboard key. It does not
 // override any mappings not present in keyMap.
 func (m *G13Config) SetKeys(km keyMap) {
-	maps.Copy(m.keyMap, km)
+	maps.Copy(m.mapping.keyMap, km)
 }
 
 // UnsetKey unmaps a gkey.
 func (m *G13Config) UnsetKey(gkey device.KeyBit) {
-	delete(m.keyMap, gkey)
+	delete(m.mapping.keyMap, gkey)
 }
 
 // Reset unmaps all G13 keys.
 func (m *G13Config) Reset() {
-	m.keyMap = make(keyMap, len(device.AllKeys()))
+	m.mapping.keyMap = make(keyMap, len(device.AllKeys()))
 }
 
 // GetKeyStates returns the state of each mapped keyboard key for the given
 // input (from [device.ReadInput]). The result maps a keyboard keycode to a
 // state, true for down (pressed) and false for up (released).
 func (m *G13Config) GetKeyStates(input uint64) map[int]bool {
-	kbkeys := make(map[int]bool, len(m.keyMap))
-	for gkey, kbkey := range m.keyMap {
+	kbkeys := make(map[int]bool, len(m.mapping.keyMap))
+	for gkey, kbkey := range m.mapping.keyMap {
 		kbkeys[kbkey] = (gkey.Uint64() & input) != 0
 	}
 	return kbkeys
@@ -106,9 +112,13 @@ func (cfg *G13Config) GetImage() (image.Image, error) {
 
 // fileConfig describes the on-disk file format for the config file.
 type fileConfig struct {
-	Mapping   map[string]string   `json:"mapping"`
+	Mapping   fileMapping         `json:"mapping"`
 	Backlight backlightFileConfig `json:"backlight"`
 	ImageFile string              `json:"image_file"`
+}
+
+type fileMapping struct {
+	Keys map[string]string `json:"keys"`
 }
 
 type backlightFileConfig struct {
@@ -131,8 +141,8 @@ func loadConfig(path string) (*G13Config, error) {
 	}
 
 	errPrefix := "failed reading config file"
-	km := make(keyMap, len(cfg.Mapping))
-	for gKeyStr, kbKeyStr := range cfg.Mapping {
+	km := make(keyMap, len(cfg.Mapping.Keys))
+	for gKeyStr, kbKeyStr := range cfg.Mapping.Keys {
 		gKey := device.KeyCode(gKeyStr)
 		if gKey == 0 {
 			return nil, fmt.Errorf("%s: unknown G13 key name: %s", errPrefix, gKeyStr)
@@ -171,7 +181,9 @@ func loadConfig(path string) (*G13Config, error) {
 	}
 
 	return &G13Config{
-		keyMap:    km,
+		mapping: Mapping{
+			keyMap: km,
+		},
 		backlight: backlight,
 		lcdImage:  imageFile,
 	}, nil
