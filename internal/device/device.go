@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"image"
 	"os"
+	"time"
 
 	"github.com/google/gousb"
 )
@@ -44,18 +45,22 @@ func New() (Device, error) {
 	ctx := gousb.NewContext()
 
 	d := G13Device{}
-	dev, err := ctx.OpenDeviceWithVIDPID(g13VendorID, g13ProductID)
-	if err != nil {
-		d.Close()
-		return nil, fmt.Errorf("failed to open device: %w", err)
+	var dev *gousb.Device
+	for dev == nil {
+		var err error
+		dev, err = ctx.OpenDeviceWithVIDPID(g13VendorID, g13ProductID)
+		if err != nil {
+			d.Close()
+			return nil, fmt.Errorf("failed to open device: %w", err)
+		}
+
+		if dev == nil {
+			fmt.Fprintf(os.Stderr, "device not found: waiting for device\n")
+			time.Sleep(3 * time.Second)
+		}
 	}
+
 	d.dev = dev
-
-	if dev == nil {
-		d.Close()
-		return nil, fmt.Errorf("device not found")
-	}
-
 	cfg, err := dev.Config(1)
 	if err != nil {
 		d.Close()
