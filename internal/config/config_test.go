@@ -317,7 +317,7 @@ func TestGetImageErrors(t *testing.T) {
 
 		fp, err := os.OpenFile(filepath.Join(tmpdir, "0.bmp"), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0000)
 		assert.NoError(err)
-		fp.Close()
+		_ = fp.Close()
 
 		cfg, err := config.NewFromFile(cfgPath)
 		assert.NoError(err)
