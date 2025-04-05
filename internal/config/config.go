@@ -29,15 +29,42 @@ type G13Config struct {
 type Mapping struct {
 	// mapping from G keys to keyboard keycodes
 	keyMap keyMap
+
+	// stick configuration and mapping
+	stick stickCfg
 }
 
 type keyMap map[device.KeyBit]int
+
+type StickMode uint8
+
+const (
+	StickModeOff StickMode = iota
+	StickModeJoystick
+	StickModeKeys
+	StickModeMouse
+)
+
+type stickCfg struct {
+	mode StickMode
+	keys StickKeys
+}
+
+type StickKeys struct {
+	Up    int
+	Down  int
+	Left  int
+	Right int
+}
 
 // NewEmpty returns an empty [G13Config].
 func NewEmpty() *G13Config {
 	return &G13Config{
 		mapping: Mapping{
 			keyMap: make(keyMap, len(device.AllKeys())),
+			stick: stickCfg{
+				mode: StickModeOff,
+			},
 		},
 	}
 }
