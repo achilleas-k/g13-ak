@@ -103,14 +103,27 @@ func (d *G13Device) Close() {
 			fmt.Fprintf(os.Stderr, "error resetting LCD during shutdown: %s", err)
 		}
 	}
+
 	if d.ctx != nil {
-		defer d.ctx.Close()
+		defer func() {
+			if err := d.ctx.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing USB context during shutdown: %s", err)
+			}
+		}()
 	}
 	if d.dev != nil {
-		defer d.dev.Close()
+		defer func() {
+			if err := d.dev.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing USB device during shutdown: %s", err)
+			}
+		}()
 	}
 	if d.cfg != nil {
-		defer d.cfg.Close()
+		defer func() {
+			if err := d.cfg.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing USB config during shutdown: %s", err)
+			}
+		}()
 	}
 	if d.intf != nil {
 		defer d.intf.Close()
