@@ -114,19 +114,24 @@ func (cfg *G13Config) GetKeyStates(input uint64) map[int]bool {
 
 		stickKeys := cfg.mapping.stick.keys
 
+		kbkeys[stickKeys.Up] = false
+		kbkeys[stickKeys.Down] = false
+		kbkeys[stickKeys.Left] = false
+		kbkeys[stickKeys.Right] = false
+
 		// get the stick position and add the mapped key(s)
 		x, y := device.StickPosition(input)
-		if x <= activeZone && stickKeys.Left != 0 {
-			kbkeys[stickKeys.Left] = true
-		}
-		if x >= 255-activeZone && stickKeys.Right != 0 {
-			kbkeys[stickKeys.Right] = true
-		}
 		if y <= activeZone && stickKeys.Up != 0 {
 			kbkeys[stickKeys.Up] = true
 		}
 		if y >= 255-activeZone && stickKeys.Down != 0 {
 			kbkeys[stickKeys.Down] = true
+		}
+		if x <= activeZone && stickKeys.Left != 0 {
+			kbkeys[stickKeys.Left] = true
+		}
+		if x >= 255-activeZone && stickKeys.Right != 0 {
+			kbkeys[stickKeys.Right] = true
 		}
 	}
 	return kbkeys
