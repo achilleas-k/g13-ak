@@ -1,6 +1,6 @@
 module github.com/achilleas-k/g13-ak
 
-go 1.23.4
+go 1.24.1
 
 require (
 	github.com/bendahl/uinput v1.7.0
