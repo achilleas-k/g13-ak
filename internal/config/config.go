@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"maps"
 	"os"
 	"path/filepath"
 
@@ -53,9 +54,7 @@ func (m *G13Config) SetKey(gkey device.KeyBit, kbKey int) {
 // SetKeys maps one or more G13 keys to the given keyboard key. It does not
 // override any mappings not present in keyMap.
 func (m *G13Config) SetKeys(km keyMap) {
-	for gkey, kbkey := range km {
-		m.keyMap[gkey] = kbkey
-	}
+	maps.Copy(m.keyMap, km)
 }
 
 // UnsetKey unmaps a gkey.
