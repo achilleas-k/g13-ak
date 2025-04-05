@@ -202,7 +202,7 @@ func TestNewFromFile(t *testing.T) {
 
 			expectedMapping := config.NewEmpty()
 			expectedMapping.SetKeys(tc.expectedKeymap)
-			assert.Equal(m, expectedMapping)
+			assert.Equal(expectedMapping, m)
 		})
 	}
 }

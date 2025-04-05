@@ -225,7 +225,7 @@ func TestLoadConfig(t *testing.T) {
 			cfg, err := loadConfig(cfgPath)
 			assert.NoError(err)
 
-			assert.Equal(*cfg, expectedConfig)
+			assert.Equal(expectedConfig, *cfg)
 		})
 	}
 }
