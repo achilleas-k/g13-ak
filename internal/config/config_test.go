@@ -284,6 +284,30 @@ func TestNewFromFileError(t *testing.T) {
 		assert.ErrorContains(err, "failed reading config file: image file")
 		assert.ErrorContains(err, "set in config file does not exist")
 	})
+
+	t.Run("bad-stick-mode", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"stick":{"mode":"bad"}}}`), 0o660)
+		assert.NoError(err)
+
+		_, err = config.NewFromFile(cfgPath)
+		assert.ErrorContains(err, "unknown stick mode: bad")
+	})
+
+	t.Run("bad-stick-key", func(t *testing.T) {
+		assert := assert.New(t)
+
+		tmpdir := t.TempDir()
+		cfgPath := filepath.Join(tmpdir, "mapping.json")
+		err := os.WriteFile(cfgPath, []byte(`{"mapping":{"stick":{"mode":"keys","keys":{"Up":"up"}}}}`), 0o660)
+		assert.NoError(err)
+
+		_, err = config.NewFromFile(cfgPath)
+		assert.ErrorContains(err, "unknown keyboard key name: up")
+	})
 }
 
 func TestDefaultConfig(t *testing.T) {

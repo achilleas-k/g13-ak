@@ -80,6 +80,15 @@ func TestLoadConfig(t *testing.T) {
 						device.MR:   uinput.KeyI,
 						device.TOP:  uinput.KeyApostrophe,
 					},
+					stick: stickCfg{
+						mode: StickModeKeys,
+						keys: StickKeys{
+							Up:    uinput.KeyW,
+							Down:  uinput.KeyS,
+							Left:  uinput.KeyA,
+							Right: uinput.KeyD,
+						},
+					},
 				},
 				backlight: [3]uint8{155, 100, 200},
 				lcdImage:  "/dev/null",
@@ -173,6 +182,17 @@ func TestLoadConfig(t *testing.T) {
 				},
 				backlight: [3]uint8{100, 200, 200},
 				lcdImage:  "here.bmp",
+			},
+		},
+		"stick-keys-ignored": { // stick keys are ignored when the mode is not "keys"
+			configData: `{"mapping":{"stick":{"mode":"","keys":{"Up":"not-a-key-but-ignored"}}}}`,
+			expectedConfig: G13Config{
+				mapping: Mapping{
+					keyMap: map[device.KeyBit]int{},
+					stick: stickCfg{
+						mode: StickModeOff,
+					},
+				},
 			},
 		},
 	}

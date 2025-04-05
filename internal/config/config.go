@@ -145,7 +145,20 @@ type fileConfig struct {
 }
 
 type fileMapping struct {
-	Keys map[string]string `json:"keys"`
+	Keys  map[string]string `json:"keys"`
+	Stick fileStickConfig   `json:"stick"`
+}
+
+type fileStickConfig struct {
+	Mode string           `json:"mode"`
+	Keys fileStickMapping `json:"keys"`
+}
+
+type fileStickMapping struct {
+	Up    string `json:"Up"`
+	Down  string `json:"Down"`
+	Left  string `json:"Left"`
+	Right string `json:"Right"`
 }
 
 type backlightFileConfig struct {
@@ -181,6 +194,55 @@ func loadConfig(path string) (*G13Config, error) {
 		km[gKey] = kbKey
 	}
 
+	stickConfig := stickCfg{}
+	switch stick := cfg.Mapping.Stick; stick.Mode {
+	case "":
+		stickConfig.mode = StickModeOff
+	case "joystick":
+		return nil, fmt.Errorf("stick mode 'joystick' not yet supported")
+	case "mouse":
+		return nil, fmt.Errorf("stick mode 'mouse' not yet supported")
+	case "keys":
+		stickConfig.mode = StickModeKeys
+
+		var up, down, left, right int
+		if stick.Keys.Up != "" {
+			up = keyboard.KeyCode(stick.Keys.Up)
+			if up == 0 {
+				return nil, fmt.Errorf("%s: unknown keyboard key name: %s", errPrefix, stick.Keys.Up)
+			}
+		}
+
+		if stick.Keys.Down != "" {
+			down = keyboard.KeyCode(stick.Keys.Down)
+			if down == 0 {
+				return nil, fmt.Errorf("%s: unknown keyboard key name: %s", errPrefix, stick.Keys.Down)
+			}
+		}
+
+		if stick.Keys.Left != "" {
+			left = keyboard.KeyCode(stick.Keys.Left)
+			if left == 0 {
+				return nil, fmt.Errorf("%s: unknown keyboard key name: %s", errPrefix, stick.Keys.Left)
+			}
+		}
+
+		if stick.Keys.Right != "" {
+			right = keyboard.KeyCode(stick.Keys.Right)
+			if right == 0 {
+				return nil, fmt.Errorf("%s: unknown keyboard key name: %s", errPrefix, stick.Keys.Right)
+			}
+		}
+		stickConfig.keys = StickKeys{
+			Up:    up,
+			Down:  down,
+			Left:  left,
+			Right: right,
+		}
+	default:
+		return nil, fmt.Errorf("%s: unknown stick mode: %s", errPrefix, stick.Mode)
+	}
+
 	backlight := [3]uint8{cfg.Backlight.Red, cfg.Backlight.Green, cfg.Backlight.Blue}
 
 	imageFile := cfg.ImageFile
@@ -210,6 +272,7 @@ func loadConfig(path string) (*G13Config, error) {
 	return &G13Config{
 		mapping: Mapping{
 			keyMap: km,
+			stick:  stickConfig,
 		},
 		backlight: backlight,
 		lcdImage:  imageFile,
