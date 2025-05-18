@@ -37,14 +37,18 @@ const (
 func (d *G13Device) SetBacklightColour(r, g, b uint8) error {
 	// TODO: set context with timeout
 	data := []byte{5, r, g, b, 0}
-	n, err := d.dev.Control(ControlRequestType, SetupPacketRequest, BacklightColourVal, SetupPacketIndex, data)
-	if err != nil {
-		return fmt.Errorf("failed setting backlight colour %+v: %w", data, err)
+	setter := func() error {
+		n, err := d.dev.Control(ControlRequestType, SetupPacketRequest, BacklightColourVal, SetupPacketIndex, data)
+		if err != nil {
+			return fmt.Errorf("failed setting backlight colour %+v: %w", data, err)
+		}
+		if n != len(data) {
+			return fmt.Errorf("sent %d bytes but wrote %d while setting backlight colour", len(data), n)
+		}
+		return nil
 	}
-	if n != len(data) {
-		return fmt.Errorf("sent %d bytes but wrote %d while setting backlight colour", len(data), n)
-	}
-	return nil
+
+	return d.startRoutine(setter)
 }
 
 func (d *G13Device) ResetBacklightColour() error {
@@ -61,15 +65,18 @@ func (d *G13Device) SetLCD(img image.Image) error {
 	}
 	data := imageToG13Bytes(img)
 
-	n, err := d.oep.Write(data)
-	if err != nil {
-		return err
-	}
-	if n != len(data) {
-		return fmt.Errorf("sent %d bytes but wrote %d while setting LCD", len(data), n)
+	setter := func() error {
+		n, err := d.oep.Write(data)
+		if err != nil {
+			return err
+		}
+		if n != len(data) {
+			return fmt.Errorf("sent %d bytes but wrote %d while setting LCD", len(data), n)
+		}
+		return nil
 	}
 
-	return nil
+	return d.startRoutine(setter)
 }
 
 func (d *G13Device) ResetLCD() error {

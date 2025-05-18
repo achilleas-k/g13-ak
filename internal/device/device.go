@@ -29,6 +29,8 @@ type Device interface {
 	ResetLCD() error
 }
 
+type routine func() error
+
 type G13Device struct {
 	ctx  *gousb.Context
 	dev  *gousb.Device
@@ -36,6 +38,9 @@ type G13Device struct {
 	intf *gousb.Interface
 	iep  *gousb.InEndpoint
 	oep  *gousb.OutEndpoint
+
+	routines     []routine
+	stopRoutines chan bool
 }
 
 // New returns an initialised [G13Device] for a connected G13 gameboard. It
@@ -96,6 +101,8 @@ func New() (Device, error) {
 		return nil, fmt.Errorf("failed to initialise output endpoint: %w", err)
 	}
 	d.oep = op
+
+	d.runRoutines()
 	return &d, nil
 }
 
@@ -103,6 +110,8 @@ func (d *G13Device) Close() {
 	if d == nil {
 		return
 	}
+
+	d.stopRoutines <- true
 
 	if d.dev != nil {
 		if err := d.ResetBacklightColour(); err != nil {
@@ -165,4 +174,31 @@ func (d *G13Device) ReadBytes() ([]byte, error) {
 		return nil, fmt.Errorf("failed reading from device: %w", err)
 	}
 	return buf, nil
+}
+
+func (d *G13Device) runRoutines() {
+	fmt.Println("Starting backround tasks")
+	d.stopRoutines = make(chan bool)
+	go func() {
+		for {
+			select {
+			case <-d.stopRoutines:
+				fmt.Println("Stopping background tasks")
+				return
+			default:
+				for _, r := range d.routines {
+					if err := r(); err != nil {
+						fmt.Fprintf(os.Stderr, "error in background task: %s", err)
+					}
+
+				}
+			}
+			time.Sleep(time.Second)
+		}
+	}()
+}
+
+func (d *G13Device) startRoutine(r routine) error {
+	d.routines = append(d.routines, r)
+	return nil
 }
