@@ -6,8 +6,8 @@ require (
 	github.com/bendahl/uinput v1.7.0
 	github.com/google/gousb v1.1.3
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/image v0.27.0
+	github.com/stretchr/testify v1.11.0
+	golang.org/x/image v0.30.0
 )
 
 require (
