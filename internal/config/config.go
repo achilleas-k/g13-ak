@@ -137,9 +137,10 @@ func (cfg *G13Config) GetKeyStates(input uint64) map[int]bool {
 	return kbkeys
 }
 
-func (cfg *G13Config) GetStickState(input uint64) (uint8, uint8) {
-	// NOTE: stick mode is not supported yet, but when eventually the result of
-	// this function will be used to set the joystick position
+// GetStickPosition returns the x, y position of the thumb stick, if it's in
+// stick mode.
+func (cfg *G13Config) GetStickPosition(input uint64) (uint8, uint8) {
+	// TODO: support configurable deadzones
 	if cfg.mapping.stick.mode != StickModeJoystick {
 		return 0, 0
 	}
@@ -235,7 +236,7 @@ func loadConfig(path string) (*G13Config, error) {
 	case "":
 		stickConfig.mode = StickModeOff
 	case "joystick":
-		return nil, fmt.Errorf("stick mode 'joystick' not yet supported")
+		stickConfig.mode = StickModeJoystick
 	case "mouse":
 		return nil, fmt.Errorf("stick mode 'mouse' not yet supported")
 	case "keys":
