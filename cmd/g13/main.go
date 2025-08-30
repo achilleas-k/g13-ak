@@ -8,6 +8,7 @@ import (
 
 	"github.com/achilleas-k/g13-ak/internal/config"
 	"github.com/achilleas-k/g13-ak/internal/device"
+	"github.com/achilleas-k/g13-ak/internal/joystick"
 	"github.com/achilleas-k/g13-ak/internal/keyboard"
 	"github.com/spf13/cobra"
 )
@@ -40,33 +41,38 @@ func setCleanupHandler(cleanup func()) {
 	}()
 }
 
-func initialise(g13cfg *config.G13Config) (device.Device, keyboard.Keyboard, error) {
+func initialise(g13cfg *config.G13Config) (device.Device, keyboard.Keyboard, joystick.Joystick, error) {
 	dev, err := device.New()
 	if err != nil {
-		return nil, nil, fmt.Errorf("device initialisation failed: %w", err)
+		return nil, nil, nil, fmt.Errorf("device initialisation failed: %w", err)
 	}
 	setCleanupHandler(dev.Close)
 
 	vkb, err := keyboard.New("g13-vkb")
 	if err != nil {
-		return nil, nil, fmt.Errorf("virtual keyboard initialisation failed: %w", err)
+		return nil, nil, nil, fmt.Errorf("virtual keyboard initialisation failed: %w", err)
+	}
+
+	vjs, err := joystick.New("g13-vjs")
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("virtual joystick initialisation failed: %w", err)
 	}
 
 	backlight := g13cfg.GetBacklight()
 	if err := dev.SetBacklightColour(backlight[0], backlight[1], backlight[2]); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	if g13cfg.GetImagePath() != "" {
 		lcdImg, err := g13cfg.GetImage()
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		if err := dev.SetLCD(lcdImg); err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
-	return dev, vkb, nil
+	return dev, vkb, vjs, nil
 }
 
 func g13(cmd *cobra.Command, args []string) error {
@@ -81,7 +87,7 @@ func g13(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	dev, vkb, err := initialise(g13cfg)
+	dev, vkb, vjs, err := initialise(g13cfg)
 	if err != nil {
 		return err
 	}
@@ -92,6 +98,8 @@ func g13(cmd *cobra.Command, args []string) error {
 			fmt.Fprintf(os.Stderr, "error closing keyboard during shutdown: %s", err)
 		}
 	}()
+
+	_ = vjs
 
 	fmt.Println("Ready")
 	var consecutiveReadErrors uint8 = 0
@@ -105,7 +113,7 @@ func g13(cmd *cobra.Command, args []string) error {
 			}
 			// After 3 consecutive read errors, try to reinitialise the device.
 			// This is primarily meant to handle device disconnections.
-			dev, vkb, err = initialise(g13cfg)
+			dev, vkb, vjs, err = initialise(g13cfg)
 			if err != nil {
 				return err
 			}
@@ -131,6 +139,13 @@ func g13(cmd *cobra.Command, args []string) error {
 			} else if err := vkb.KeyUp(kbkey); err != nil {
 				fmt.Fprintf(os.Stderr, "keyboard error releasing %d: %s\n", kbkey, err)
 			}
+		}
+
+		xInput, yInput := g13cfg.GetStickPosition(input)
+		xOutput := (float32(xInput) - float32(127)) / float32(127)
+		yOutput := (float32(yInput) - float32(127)) / float32(127)
+		if err := vjs.StickPosition(xOutput, yOutput); err != nil {
+			fmt.Fprintf(os.Stderr, "joystick error setting position %f %f", xOutput, yOutput)
 		}
 	}
 }
