@@ -11,6 +11,7 @@ type Joystick interface {
 	ButtonPress(b int) error
 	ButtonDown(b int) error
 	ButtonUp(b int) error
+	StickPosition(x, y float32) error
 }
 
 type UinputJoystick struct {
@@ -54,6 +55,13 @@ func (vjs *UinputJoystick) ButtonUp(k int) error {
 		return fmt.Errorf("button up before initialising joystick")
 	}
 	return vjs.js.ButtonUp(k)
+}
+
+func (vjs *UinputJoystick) StickPosition(x, y float32) error {
+	if !vjs.hasJoystick() {
+		return fmt.Errorf("stick position set before initialising joystick")
+	}
+	return vjs.js.LeftStickMove(x, y)
 }
 
 func (vjs *UinputJoystick) hasJoystick() bool {
