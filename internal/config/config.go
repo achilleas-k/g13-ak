@@ -139,13 +139,14 @@ func (cfg *G13Config) GetKeyStates(input uint64) map[int]bool {
 
 // GetStickPosition returns the x, y position of the thumb stick, if it's in
 // stick mode.
-func (cfg *G13Config) GetStickPosition(input uint64) (uint8, uint8) {
+func (cfg *G13Config) GetStickPosition(input uint64) *StickPosition {
 	// TODO: support configurable deadzones
 	if cfg.mapping.stick.mode != StickModeJoystick {
-		return 0, 0
+		return nil
 	}
 
-	return device.StickPosition(input)
+	x, y := device.StickPosition(input)
+	return &StickPosition{posX: x, posY: y}
 }
 
 func (cfg *G13Config) GetBacklight() [3]uint8 {
