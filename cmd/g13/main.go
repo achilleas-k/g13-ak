@@ -141,12 +141,14 @@ func g13(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		xInput, yInput := g13cfg.GetStickPosition(input)
-		xOutput := (float32(xInput) - float32(127)) / float32(127)
-		yOutput := (float32(yInput) - float32(127)) / float32(127)
-		if err := vjs.StickPosition(xOutput, yOutput); err != nil {
-			fmt.Fprintf(os.Stderr, "joystick error setting position %f %f", xOutput, yOutput)
+		stickPos := g13cfg.GetStickPosition(input)
+		if stickPos != nil {
+			xOutput, yOutput := stickPos.UinputPosition()
+			if err := vjs.StickPosition(xOutput, yOutput); err != nil {
+				fmt.Fprintf(os.Stderr, "joystick error setting position %f %f", xOutput, yOutput)
+			}
 		}
+
 	}
 }
 
