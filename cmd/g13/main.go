@@ -99,8 +99,6 @@ func g13(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	_ = vjs
-
 	fmt.Println("Ready")
 	var consecutiveReadErrors uint8 = 0
 	for {
