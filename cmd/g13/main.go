@@ -102,29 +102,14 @@ func g13(cmd *cobra.Command, args []string) error {
 	fmt.Println("Ready")
 	var consecutiveReadErrors uint8 = 0
 	for {
-		if consecutiveReadErrors > 3 {
-			fmt.Println("Reinitialising device")
-			dev.Close()
-			dev = nil
-			if err := vkb.Close(); err != nil {
-				fmt.Fprintf(os.Stderr, "error closing vkb: %s\n", err)
-			}
-			// After 3 consecutive read errors, try to reinitialise the device.
-			// This is primarily meant to handle device disconnections.
-			dev, vkb, vjs, err = initialise(g13cfg)
-			if err != nil {
-				return err
-			}
-			consecutiveReadErrors = 0
-			fmt.Println("Device restored")
-		}
-
 		input, err := dev.ReadInput()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "e: %s (%d)\n", err, consecutiveReadErrors)
 			consecutiveReadErrors++
 			// wait a bit before continuing to try to read
 			time.Sleep(500 * time.Millisecond)
+
+			// TODO: shut down if consecutive errors reaches a limit
 			continue
 		}
 
@@ -147,6 +132,23 @@ func g13(cmd *cobra.Command, args []string) error {
 			}
 		}
 
+		if consecutiveReadErrors > 0 {
+			// device is back after read errors
+			fmt.Println("Reinitialising device")
+			dev.Close()
+			dev = nil
+			if err := vkb.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing vkb: %s\n", err)
+			}
+			// After 3 consecutive read errors, try to reinitialise the device.
+			// This is primarily meant to handle device disconnections.
+			dev, vkb, vjs, err = initialise(g13cfg)
+			if err != nil {
+				return err
+			}
+			consecutiveReadErrors = 0
+			fmt.Println("Device restored")
+		}
 	}
 }
 
