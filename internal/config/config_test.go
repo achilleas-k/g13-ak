@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/achilleas-k/g13-ak/internal/config"
-	"github.com/achilleas-k/g13-ak/internal/device"
+	"github.com/achilleas-k/gg13/internal/config"
+	"github.com/achilleas-k/gg13/internal/device"
 	"github.com/bendahl/uinput"
 	"github.com/stretchr/testify/assert"
 )

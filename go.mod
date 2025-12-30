@@ -1,4 +1,4 @@
-module github.com/achilleas-k/g13-ak
+module github.com/achilleas-k/gg13
 
 go 1.24.1
 

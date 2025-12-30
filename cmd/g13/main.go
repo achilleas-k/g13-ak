@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/achilleas-k/g13-ak/internal/config"
-	"github.com/achilleas-k/g13-ak/internal/device"
-	"github.com/achilleas-k/g13-ak/internal/joystick"
-	"github.com/achilleas-k/g13-ak/internal/keyboard"
+	"github.com/achilleas-k/gg13/internal/config"
+	"github.com/achilleas-k/gg13/internal/device"
+	"github.com/achilleas-k/gg13/internal/joystick"
+	"github.com/achilleas-k/gg13/internal/keyboard"
 	"github.com/spf13/cobra"
 )
 

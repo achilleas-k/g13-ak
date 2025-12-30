@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/achilleas-k/g13-ak/internal/device"
-	"github.com/achilleas-k/g13-ak/internal/keyboard"
+	"github.com/achilleas-k/gg13/internal/device"
+	"github.com/achilleas-k/gg13/internal/keyboard"
 	"golang.org/x/image/bmp"
 )
 
