@@ -171,7 +171,10 @@ func g13(cmd *cobra.Command, args []string) error {
 				fmt.Println("Reinitialising device")
 				dev.Close()
 				if err := vkb.Close(); err != nil {
-					fmt.Fprintf(os.Stderr, "error closing vkb: %s\n", err)
+					fmt.Fprintf(os.Stderr, "error closing virtual keyboard during reinit: %s\n", err)
+				}
+				if err := vjs.Close(); err != nil {
+					fmt.Fprintf(os.Stderr, "error closing virtual joystick during reinit: %s\n", err)
 				}
 				// After 3 consecutive read errors, try to reinitialise the device.
 				// This is primarily meant to handle device disconnections.
