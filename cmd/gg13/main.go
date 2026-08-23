@@ -51,25 +51,51 @@ func initialise(g13cfg *config.G13Config) (device.Device, keyboard.Keyboard, joy
 
 	vkb, err := keyboard.New("g13-vkb")
 	if err != nil {
+		dev.Close()
 		return nil, nil, nil, fmt.Errorf("virtual keyboard initialisation failed: %w", err)
 	}
 
 	vjs, err := joystick.New("g13-vjs")
 	if err != nil {
+		dev.Close()
+		if err := vkb.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing virtual keyboard during failed init: %s\n", err)
+		}
 		return nil, nil, nil, fmt.Errorf("virtual joystick initialisation failed: %w", err)
 	}
 
 	backlight := g13cfg.GetBacklight()
 	if err := dev.SetBacklightColour(backlight[0], backlight[1], backlight[2]); err != nil {
+		dev.Close()
+		if err := vkb.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing virtual keyboard during failed init: %s\n", err)
+		}
+		if err := vjs.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing virtual joystick during failed init: %s\n", err)
+		}
 		return nil, nil, nil, err
 	}
 
 	if g13cfg.GetImagePath() != "" {
 		lcdImg, err := g13cfg.GetImage()
 		if err != nil {
+			dev.Close()
+			if err := vkb.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing virtual keyboard during failed init: %s\n", err)
+			}
+			if err := vjs.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing virtual joystick during failed init: %s\n", err)
+			}
 			return nil, nil, nil, err
 		}
 		if err := dev.SetLCD(lcdImg); err != nil {
+			dev.Close()
+			if err := vkb.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing virtual keyboard during failed init: %s\n", err)
+			}
+			if err := vjs.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "error closing virtual joystick during failed init: %s\n", err)
+			}
 			return nil, nil, nil, err
 		}
 	}
