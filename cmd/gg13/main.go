@@ -144,7 +144,6 @@ func g13(cmd *cobra.Command, args []string) error {
 			if consecutiveReadErrors >= errorCounterThreshold {
 				fmt.Println("Reinitialising device")
 				dev.Close()
-				dev = nil
 				if err := vkb.Close(); err != nil {
 					fmt.Fprintf(os.Stderr, "error closing vkb: %s\n", err)
 				}
