@@ -152,7 +152,10 @@ func g13(cmd *cobra.Command, args []string) error {
 	defer func() {
 		dev.Close()
 		if err := vkb.Close(); err != nil {
-			fmt.Fprintf(os.Stderr, "error closing keyboard during shutdown: %s", err)
+			fmt.Fprintf(os.Stderr, "error closing virtual keyboard during shutdown: %s\n", err)
+		}
+		if err := vjs.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing virtual joystick during shutdown: %s\n", err)
 		}
 	}()
 
